@@ -211,6 +211,116 @@
     .color-option.blue { background: #007bff; }
     .color-option.green { background: #28a745; }
     .color-option.yellow { background: #ffc107; color: black; }
+    /* Chat Box Styles */
+    .chat-box {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: 300px;
+      height: 300px;
+      background: #1e7e34;
+      border: 2px solid #28a745;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    
+    .chat-header {
+      background: #28a745;
+      padding: 8px;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .chat-header h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .chat-toggle {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(30, 126, 52, 0.8);
+    }
+    
+    .chat-message {
+      padding: 6px 10px;
+      border-radius: 12px;
+      max-width: 85%;
+      word-break: break-word;
+    }
+    
+    .chat-message.sent {
+      align-self: flex-end;
+      background: #007bff;
+    }
+    
+    .chat-message.received {
+      align-self: flex-start;
+      background: #28a745;
+    }
+    
+    .message-sender {
+      font-size: 10px;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    
+    .chat-input-container {
+      display: flex;
+      padding: 8px;
+      border-top: 1px solid #28a745;
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #28a745;
+      background: #146c43;
+      color: white;
+    }
+    
+    .chat-send-btn {
+      margin-left: 8px;
+      padding: 8px 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .chat-send-btn:hover {
+      background: #0069d9;
+    }
+    
+    .chat-box.minimized .chat-messages,
+    .chat-box.minimized .chat-input-container {
+      display: none;
+    }
+    
+    .chat-box.minimized {
+      height: auto;
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -245,6 +355,36 @@
   <div id="roomListSection" class="room-list">
     <h2>Danh sách phòng</h2>
     <div id="roomList">Đang tải danh sách phòng...</div>
+  </div>
+  
+  <!-- Chat Box -->
+  <div id="chatBox" class="chat-box" style="display: none;">
+    <div class="chat-header">
+      <h3>Chat Phòng</h3>
+      <button id="chatToggleBtn" class="chat-toggle">_</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-container">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Nhập tin nhắn..." />
+      <button id="chatSendBtn" class="chat-send-btn">Gửi</button>
+    </div>
+  </div>
+
+  <!-- Sảnh chờ (ẩn ban đầu) -->
+  <div id="lobbySection" style="display: none;">
+    <h2 id="lobbyRoomName">Phòng chờ: </h2>
+    
+    <!-- Danh sách người chơi trong phòng chờ -->
+    <div class="player-list">
+      <h3>Người chơi trong phòng</h3>
+      <div id="lobbyPlayerList"></div>
+    </div>
+    
+    <div style="margin: 10px 0;">
+      <button id="startGameBtnLobby" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; display: none;">Bắt đầu phòng</button>
+      <button id="leaveRoomBtnLobby" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Rời phòng</button>
+    </div>
+    <div id="lobbyMessage" style="margin: 15px 0; font-size: 18px; font-weight: bold;"></div>
   </div>
   
   <!-- Phần game (ẩn ban đầu) -->
@@ -1281,11 +1421,15 @@
       currentRoomName = roomName;
       gameRef = db.ref('games/' + roomId);
       
-      // Cập nhật UI
+      // Khởi tạo chat cho phòng
+      initializeChat();
+      
+      // Cập nhật UI - Hiển thị sảnh chờ thay vì phòng chơi
       document.getElementById('roomSection').style.display = 'none';
       document.getElementById('roomListSection').style.display = 'none';
-      document.getElementById('gameSection').style.display = 'block';
-      document.getElementById('currentRoomName').textContent = `Phòng: ${roomName}`;
+      document.getElementById('lobbySection').style.display = 'block';
+      document.getElementById('gameSection').style.display = 'none';
+      document.getElementById('lobbyRoomName').textContent = `Phòng chờ: ${roomName}`;
       
       // Thêm người chơi vào phòng
       const roomRef = roomsRef.child(roomId);
@@ -1326,6 +1470,7 @@
     function listenToRoomPlayers(roomId) {
       const roomRef = roomsRef.child(roomId);
       const playerListDiv = document.getElementById('roomPlayerList');
+      const lobbyPlayerListDiv = document.getElementById('lobbyPlayerList');
       
       // Lắng nghe sự thay đổi của thông tin phòng (bao gồm chủ phòng)
       roomRef.on('value', roomSnapshot => {
@@ -1335,6 +1480,7 @@
           // Nếu phòng không còn tồn tại, tự động rời phòng
           document.getElementById('roomSection').style.display = 'block';
           document.getElementById('roomListSection').style.display = 'block';
+          document.getElementById('lobbySection').style.display = 'none';
           document.getElementById('gameSection').style.display = 'none';
           
           // Ngừng lắng nghe sự thay đổi
@@ -1356,11 +1502,13 @@
         
         // Cập nhật hiển thị nút bắt đầu phòng dựa trên vai trò
         document.getElementById('startGameBtn').style.display = isHost ? 'inline-block' : 'none';
+        document.getElementById('startGameBtnLobby').style.display = isHost ? 'inline-block' : 'none';
         
         // Kiểm tra xem trò chơi đã bắt đầu chưa
         if (roomData.gameStarted) {
           // Nếu trò chơi đã bắt đầu, chuyển sang giao diện trò chơi
           document.getElementById('roomSection').style.display = 'none';
+          document.getElementById('lobbySection').style.display = 'none';
           document.getElementById('gameSection').style.display = 'block';
           
           // Bắt đầu lắng nghe thay đổi trò chơi nếu chưa
@@ -1371,9 +1519,11 @@
       // Lắng nghe sự thay đổi của danh sách người chơi
       roomRef.child('players').on('value', snapshot => {
         playerListDiv.innerHTML = '';
+        lobbyPlayerListDiv.innerHTML = '';
         
         if (!snapshot.exists()) {
           playerListDiv.innerHTML = '<p>Chưa có người chơi nào trong phòng.</p>';
+          lobbyPlayerListDiv.innerHTML = '<p>Chưa có người chơi nào trong phòng.</p>';
           return;
         }
         
@@ -1389,6 +1539,7 @@
           // Lấy danh sách tên người chơi
           const playerNames = Object.keys(snapshot.val());
           
+          // Cập nhật danh sách người chơi trong phòng chơi
           playerNames.forEach(name => {
             const playerItem = document.createElement('div');
             playerItem.className = 'player-item';
@@ -1406,6 +1557,10 @@
             
             playerItem.textContent = displayText;
             playerListDiv.appendChild(playerItem);
+            
+            // Tạo bản sao cho sảnh chờ
+            const lobbyPlayerItem = playerItem.cloneNode(true);
+            lobbyPlayerListDiv.appendChild(lobbyPlayerItem);
           });
         });
       });
@@ -1426,6 +1581,15 @@
       
       // Ngừng lắng nghe sự thay đổi của danh sách người chơi trong phòng
       roomRef.child('players').off();
+      
+      // Ngừng lắng nghe tin nhắn chat
+      if (chatRef) {
+        chatRef.off();
+        chatRef = null;
+      }
+      
+      // Ẩn chat box
+      document.getElementById('chatBox').style.display = 'none';
       
       // Cập nhật danh sách người chơi trong game state
       if (gameRef) {
@@ -1462,6 +1626,7 @@
       // Cập nhật UI
       document.getElementById('roomSection').style.display = 'block';
       document.getElementById('roomListSection').style.display = 'block';
+      document.getElementById('lobbySection').style.display = 'none';
       document.getElementById('gameSection').style.display = 'none';
       
       currentRoomId = null;
@@ -1576,6 +1741,94 @@
       }, 3000);
     }
     
+    // Chức năng chat
+    let chatRef = null;
+    
+    function initializeChat() {
+       if (!currentRoomId) return;
+       
+       // Hiển thị chat box khi vào phòng
+       document.getElementById('chatBox').style.display = 'flex';
+       
+       // Xóa tất cả tin nhắn cũ trước khi hiển thị tin nhắn mới
+       document.getElementById('chatMessages').innerHTML = '';
+       
+       // Tạo tham chiếu đến chat của phòng hiện tại
+       chatRef = db.ref('chats/' + currentRoomId);
+       
+       // Lắng nghe tin nhắn mới
+       chatRef.on('child_added', snapshot => {
+         const message = snapshot.val();
+         displayChatMessage(message);
+       });
+     }
+    
+    function displayChatMessage(message) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageElement = document.createElement('div');
+      
+      // Xác định xem tin nhắn là của người dùng hiện tại hay người khác
+      const isCurrentUser = message.sender === playerName;
+      messageElement.className = `chat-message ${isCurrentUser ? 'sent' : 'received'}`;
+      
+      // Thêm tên người gửi (chỉ hiển thị cho tin nhắn nhận được)
+      if (!isCurrentUser) {
+        const senderElement = document.createElement('div');
+        senderElement.className = 'message-sender';
+        senderElement.textContent = message.sender;
+        messageElement.appendChild(senderElement);
+      }
+      
+      // Thêm nội dung tin nhắn
+      const contentElement = document.createElement('div');
+      contentElement.textContent = message.text;
+      messageElement.appendChild(contentElement);
+      
+      chatMessages.appendChild(messageElement);
+      
+      // Cuộn xuống tin nhắn mới nhất
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function sendChatMessage() {
+      if (!chatRef) return;
+      
+      const chatInput = document.getElementById('chatInput');
+      const messageText = chatInput.value.trim();
+      
+      if (messageText) {
+        // Tạo đối tượng tin nhắn
+        const message = {
+          sender: playerName,
+          text: messageText,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        // Đẩy tin nhắn lên Firebase
+        chatRef.push(message);
+        
+        // Xóa nội dung input
+        chatInput.value = '';
+      }
+    }
+    
+    // Xử lý sự kiện cho chat box
+    document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+    
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendChatMessage();
+      }
+    });
+    
+    document.getElementById('chatToggleBtn').addEventListener('click', () => {
+      const chatBox = document.getElementById('chatBox');
+      const toggleBtn = document.getElementById('chatToggleBtn');
+      
+      chatBox.classList.toggle('minimized');
+      toggleBtn.textContent = chatBox.classList.contains('minimized') ? '+' : '_';
+    });
+    
     // Nút bấm
     document.getElementById('createRoomBtn').addEventListener('click', createRoom);
     document.getElementById('joinRoomBtn').addEventListener('click', async () => {
@@ -1605,7 +1858,9 @@
     });
     
     document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
+    document.getElementById('leaveRoomBtnLobby').addEventListener('click', leaveRoom);
     document.getElementById('startGameBtn').addEventListener('click', startGame);
+    document.getElementById('startGameBtnLobby').addEventListener('click', startGame);
     drawCardBtn.addEventListener('click', drawCard);
     nextTurnBtn.addEventListener('click', nextTurn);
 
