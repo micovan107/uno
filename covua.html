@@ -13,17 +13,41 @@
       text-align: center;
       margin: 0;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* CSS cho video nền */
+    #backgroundVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none;
+      display: none;
+    }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 1;
     }
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
+      box-sizing: border-box;
+      width: 100%;
     }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .room-info {
       background: #1e7e34;
@@ -33,6 +57,8 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .room-name {
       font-size: 18px;
@@ -42,12 +68,42 @@
       display: flex;
       justify-content: space-around;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
     .player {
       background: rgba(0,0,0,0.2);
       padding: 10px 15px;
       border-radius: 8px;
       min-width: 200px;
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    /* Media Queries cho responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        padding: 10px;
+      }
+      .header {
+        flex-direction: column;
+        align-items: center;
+      }
+      .room-info {
+        flex-direction: column;
+        padding: 10px;
+      }
+      .player-list {
+        flex-direction: column;
+        align-items: center;
+      }
+      .player {
+        width: 100%;
+        max-width: 300px;
+      }
     }
     .player.current {
       background: #28a745;
@@ -70,6 +126,7 @@
       flex-direction: column;
       align-items: center;
       margin-bottom: 20px;
+      width: 100%;
     }
     .board {
       display: grid;
@@ -79,6 +136,7 @@
       margin: 20px auto;
       border: 5px solid #000;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      max-width: 100%;
     }
     .square {
       width: 50px;
@@ -89,6 +147,31 @@
       font-size: 30px;
       cursor: pointer;
       user-select: none;
+    }
+    
+    /* Media Queries cho bàn cờ */
+    @media (max-width: 480px) {
+      .board {
+        grid-template-columns: repeat(8, 35px);
+        grid-template-rows: repeat(8, 35px);
+      }
+      .square {
+        width: 35px;
+        height: 35px;
+        font-size: 22px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .board {
+        grid-template-columns: repeat(8, 30px);
+        grid-template-rows: repeat(8, 30px);
+      }
+      .square {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+      }
     }
     .white {
       background-color: #f0d9b5;
@@ -220,6 +303,8 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+      width: 100%;
+      box-sizing: border-box;
     }
     .chat-messages {
       height: 200px;
@@ -233,6 +318,31 @@
     .chat-input-container {
       display: flex;
       gap: 10px;
+    }
+    
+    /* Media Queries cho chat */
+    @media (max-width: 768px) {
+      .chat-container {
+        padding: 10px;
+        margin-top: 15px;
+      }
+      .chat-messages {
+        height: 150px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .chat-input-container {
+        flex-direction: column;
+        gap: 5px;
+      }
+      .chat-input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .chat-send-btn {
+        align-self: flex-end;
+      }
     }
     .chat-input {
       flex: 1;
@@ -293,8 +403,16 @@
       }
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
+  <!-- Div cho video nền -->
+  <div id="backgroundVideo"></div>
+  
+  <div class="content-wrapper">
   <!-- Modal phong cấp tốt -->
   <div id="promotion-modal" class="promotion-modal">
     <div class="promotion-content">
@@ -1535,6 +1653,106 @@
       // Rời phòng khi đóng tab
       leaveRoom();
     });
+    
+    // Khởi tạo YouTube API và xử lý video nền
+    let ytPlayer = null;
+    
+    // Hàm tải YouTube API
+    function loadYouTubeAPI() {
+      // Tạo script tag để tải YouTube API
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+    
+    // Hàm khởi tạo YouTube Player
+    function initYouTubePlayer(videoId, startTime) {
+      if (ytPlayer) {
+        ytPlayer.loadVideoById({
+          videoId: videoId,
+          startSeconds: startTime
+        });
+      } else {
+        ytPlayer = new YT.Player('backgroundVideo', {
+          videoId: videoId,
+          playerVars: {
+            'autoplay': 1,
+            'controls': 0,
+            'showinfo': 0,
+            'rel': 0,
+            'iv_load_policy': 3,
+            'modestbranding': 1,
+            'loop': 1,
+            'start': startTime,
+            'playsinline': 1,
+            'mute': 1 // Mặc định tắt tiếng, sẽ được cập nhật sau khi player sẵn sàng
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+    }
+    
+    // Hàm xử lý khi player sẵn sàng
+    function onPlayerReady(event) {
+      event.target.playVideo();
+      document.getElementById('backgroundVideo').style.display = 'block';
+    }
+    
+    // Hàm xử lý khi trạng thái player thay đổi
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        // Phát lại video khi kết thúc
+        event.target.playVideo();
+      }
+    }
+    
+    // Lắng nghe thay đổi trạng thái video từ Firebase
+    function listenToVideoState() {
+      const db = firebase.database();
+      db.ref('videoState').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        
+        if (data.videoId && data.isPlaying) {
+          // Tính toán thời gian hiện tại của video
+          const timeSinceUpdate = (Date.now() - data.lastUpdateTime) / 1000;
+          const currentTime = data.currentTime + timeSinceUpdate;
+          
+          // Hiển thị và phát video
+          if (window.YT && window.YT.Player) {
+            initYouTubePlayer(data.videoId, currentTime);
+            
+            // Áp dụng trạng thái tắt tiếng
+            if (ytPlayer) {
+              if (data.isMuted) {
+                ytPlayer.mute();
+              } else {
+                ytPlayer.unMute();
+              }
+            }
+          } else {
+            loadYouTubeAPI();
+            window.onYouTubeIframeAPIReady = function() {
+              initYouTubePlayer(data.videoId, currentTime);
+            };
+          }
+        } else {
+          // Dừng và ẩn video
+          if (ytPlayer) {
+            ytPlayer.stopVideo();
+          }
+          document.getElementById('backgroundVideo').style.display = 'none';
+        }
+      });
+    }
+    
+    // Lắng nghe trạng thái video
+    listenToVideoState();
   </script>
+  </div> <!-- Đóng content-wrapper -->
 </body>
 </html>

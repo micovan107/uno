@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="permissions-policy" content="unload=()">
   <title>Trang Quản Trị - Trò chơi Online</title>
   <style>
@@ -15,6 +16,9 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
+      padding: 0 15px;
+      width: 100%;
+      box-sizing: border-box;
     }
     .admin-header {
       display: flex;
@@ -23,6 +27,7 @@
       margin-bottom: 30px;
       padding-bottom: 20px;
       border-bottom: 1px solid rgba(255,255,255,0.2);
+      flex-wrap: wrap;
     }
     .admin-title {
       font-size: 28px;
@@ -32,6 +37,21 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    /* Media Queries cho admin page */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .admin-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .admin-title {
+        font-size: 24px;
+      }
     }
     .admin-avatar {
       width: 40px;
@@ -64,6 +84,7 @@
       margin-bottom: 20px;
       border-radius: 5px;
       overflow: hidden;
+      flex-wrap: wrap;
     }
     .admin-tab {
       flex: 1;
@@ -73,6 +94,7 @@
       color: white;
       cursor: pointer;
       font-size: 16px;
+      min-width: 120px;
     }
     .admin-tab.active {
       background: #28a745;
@@ -93,7 +115,35 @@
       margin-top: 20px;
       background: rgba(0,0,0,0.2);
       border-radius: 5px;
-      overflow: hidden;
+      overflow-x: auto;
+      display: block;
+    }
+    
+    @media (max-width: 768px) {
+      .admin-tabs {
+        flex-direction: column;
+      }
+      .admin-tab {
+        border-radius: 0;
+        margin-bottom: 2px;
+      }
+      .tab-content {
+        padding: 15px 10px;
+      }
+      .data-table th, .data-table td {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .admin-tab {
+        padding: 10px;
+        font-size: 14px;
+      }
+      .tab-content {
+        padding: 10px 5px;
+      }
     }
     .data-table th, .data-table td {
       padding: 12px 15px;
@@ -272,6 +322,65 @@
       border-radius: 5px;
       margin-bottom: 15px;
     }
+    
+    /* CSS cho quản lý video */
+    .video-control-panel {
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .video-input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .video-input {
+      flex: 1;
+      min-width: 300px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+    .video-btn {
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    .video-play-btn {
+      background: #28a745;
+      color: white;
+    }
+    .video-stop-btn {
+      background: #dc3545;
+      color: white;
+    }
+    .video-preview {
+      width: 100%;
+      max-width: 640px;
+      height: 360px;
+      margin: 20px auto;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .video-input-group {
+        flex-direction: column;
+      }
+      .video-input {
+        width: 100%;
+      }
+      .video-preview {
+        height: 240px;
+      }
+    }
     .login-container {
       max-width: 400px;
       margin: 100px auto;
@@ -355,6 +464,7 @@
       <button class="admin-tab active" data-tab="usersTab">Quản Lý Người Dùng</button>
       <button class="admin-tab" data-tab="roomsTab">Quản Lý Phòng</button>
       <button class="admin-tab" data-tab="gamesTab">Thống Kê Trò Chơi</button>
+      <button class="admin-tab" data-tab="videoTab">Quản Lý Video</button>
     </div>
     
     <!-- Tab Quản Lý Người Dùng -->
@@ -484,6 +594,61 @@
       
       <div class="pagination" id="gamesPagination">
         <!-- Các nút phân trang sẽ được thêm vào đây -->
+      </div>
+    </div>
+    
+    <!-- Tab Quản Lý Video -->
+    <div id="videoTab" class="tab-content">
+      <h2>Quản Lý Video Nền</h2>
+      <p>Bạn có thể phát video YouTube làm nền cho tất cả các trang (trang chủ, UNO, Cờ Vua).</p>
+      
+      <div class="video-control-panel">
+        <div class="video-input-group">
+          <input type="text" id="videoUrlInput" class="video-input" placeholder="Nhập URL video YouTube (ví dụ: https://www.youtube.com/watch?v=...)">
+          <button id="playVideoBtn" class="video-btn video-play-btn">Phát Video</button>
+          <button id="stopVideoBtn" class="video-btn video-stop-btn">Dừng Video</button>
+          <div class="checkbox-container">
+            <input type="checkbox" id="muteVideoCheckbox" checked>
+            <label for="muteVideoCheckbox">Tắt tiếng</label>
+          </div>
+        </div>
+        
+        <div id="videoStatus" style="display: none; padding: 10px; margin-top: 10px; border-radius: 5px;"></div>
+        
+        <div class="video-preview" id="videoPreview">
+          <!-- YouTube player sẽ được nhúng vào đây -->
+        </div>
+        
+        <div class="playlist-container">
+          <h3>Danh sách phát</h3>
+          <div class="playlist-input-group">
+            <input type="text" id="playlistUrlInput" class="video-input" placeholder="Nhập URL video YouTube để thêm vào danh sách phát">
+            <button id="addToPlaylistBtn" class="video-btn">Thêm vào danh sách</button>
+          </div>
+          
+          <div class="playlist-items" id="playlistItems">
+            <!-- Danh sách video sẽ được thêm vào đây -->
+            <div class="empty-playlist">Chưa có video nào trong danh sách phát</div>
+          </div>
+          
+          <div class="playlist-controls">
+            <button id="playPlaylistBtn" class="video-btn video-play-btn">Phát danh sách</button>
+            <button id="clearPlaylistBtn" class="video-btn video-stop-btn">Xóa danh sách</button>
+          </div>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: left;">
+          <h3>Hướng dẫn sử dụng:</h3>
+          <ul style="text-align: left;">
+            <li>Dán URL video YouTube vào ô nhập liệu.</li>
+            <li>Nhấn "Phát Video" để bắt đầu phát video trên tất cả các trang.</li>
+            <li>Nhấn "Dừng Video" để dừng phát video trên tất cả các trang.</li>
+            <li>Bỏ chọn "Tắt tiếng" để phát cả âm thanh.</li>
+            <li>Thêm nhiều video vào danh sách phát để phát liên tục.</li>
+            <li>Video sẽ được đồng bộ cho tất cả người dùng.</li>
+            <li>Chỉ admin mới có quyền điều khiển video.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -658,6 +823,11 @@
         tab.classList.add('active');
         const tabId = tab.getAttribute('data-tab');
         document.getElementById(tabId).classList.add('active');
+        
+        // Nếu chọn tab video, khởi tạo YouTube API nếu cần
+        if (tabId === 'videoTab' && !window.YT) {
+          loadYouTubeAPI();
+        }
         
         // Tải dữ liệu cho tab được chọn
         if (tabId === 'usersTab') {
@@ -1439,6 +1609,425 @@
           auth.signOut().then(() => {
             document.getElementById('loginError').textContent = 'Tài khoản không có quyền truy cập trang quản trị!';
           });
+        }
+      });
+    });
+    
+    // Biến lưu trạng thái video
+    let videoState = {
+      videoId: null,
+      player: null,
+      isPlaying: false,
+      currentTime: 0,
+      lastUpdateTime: Date.now(),
+      isMuted: true,
+      playlist: [],
+      currentPlaylistIndex: -1
+    };
+    
+    // Hàm tải YouTube API
+    function loadYouTubeAPI() {
+      // Tạo script tag để tải YouTube API
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+    
+    // Hàm khởi tạo YouTube Player
+    function initYouTubePlayer(videoId) {
+      if (videoState.player) {
+        videoState.player.loadVideoById(videoId);
+        videoState.videoId = videoId;
+        // Áp dụng trạng thái tắt tiếng
+        if (videoState.isMuted) {
+          videoState.player.mute();
+        } else {
+          videoState.player.unMute();
+        }
+      } else {
+        videoState.player = new YT.Player('videoPreview', {
+          height: '100%',
+          width: '100%',
+          videoId: videoId,
+          playerVars: {
+            'playsinline': 1,
+            'controls': 1
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+        videoState.videoId = videoId;
+      }
+    }
+    
+    // Hàm xử lý khi player sẵn sàng
+    function onPlayerReady(event) {
+      // Áp dụng trạng thái tắt tiếng
+      if (videoState.isMuted) {
+        event.target.mute();
+      } else {
+        event.target.unMute();
+      }
+      event.target.playVideo();
+      videoState.isPlaying = true;
+    }
+    
+    // Hàm xử lý khi trạng thái player thay đổi
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        videoState.isPlaying = true;
+        updateVideoState();
+      } else if (event.data === YT.PlayerState.PAUSED) {
+        videoState.isPlaying = false;
+        updateVideoState();
+      } else if (event.data === YT.PlayerState.ENDED) {
+        videoState.isPlaying = false;
+        updateVideoState();
+        
+        // Nếu đang phát danh sách và có video tiếp theo, tự động phát video tiếp theo
+        if (videoState.playlist.length > 0 && videoState.currentPlaylistIndex >= 0) {
+          // Tính toán index của video tiếp theo
+          let nextIndex = videoState.currentPlaylistIndex + 1;
+          
+          // Nếu đã phát hết danh sách, quay lại video đầu tiên
+          if (nextIndex >= videoState.playlist.length) {
+            nextIndex = 0;
+          }
+          
+          // Phát video tiếp theo sau 2 giây
+          setTimeout(() => {
+            playVideoFromPlaylist(nextIndex);
+          }, 2000);
+        }
+      }
+    }
+    
+    // Hàm cập nhật trạng thái video lên Firebase
+    function updateVideoState() {
+      if (!currentAdmin) return;
+      
+      if (videoState.player && videoState.isPlaying) {
+        videoState.currentTime = videoState.player.getCurrentTime();
+      }
+      
+      videoState.lastUpdateTime = Date.now();
+      
+      db.ref('videoState').set({
+        videoId: videoState.videoId,
+        isPlaying: videoState.isPlaying,
+        currentTime: videoState.currentTime,
+        lastUpdateTime: videoState.lastUpdateTime,
+        isMuted: videoState.isMuted,
+        playlist: videoState.playlist,
+        currentPlaylistIndex: videoState.currentPlaylistIndex
+      });
+    }
+    
+    // Hàm lấy ID video từ URL YouTube
+    function getYouTubeVideoId(url) {
+      if (!url) return null;
+      
+      // Xử lý URL dạng youtube.com/watch?v=VIDEO_ID
+      const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[7].length === 11) ? match[7] : null;
+    }
+    
+    // Hàm phát video
+    function playVideo() {
+      const videoUrl = document.getElementById('videoUrlInput').value.trim();
+      const videoId = getYouTubeVideoId(videoUrl);
+      
+      if (!videoId) {
+        showVideoStatus('URL video không hợp lệ. Vui lòng nhập URL YouTube hợp lệ.', 'error');
+        return;
+      }
+      
+      // Cập nhật trạng thái tắt tiếng từ checkbox
+      videoState.isMuted = document.getElementById('muteVideoCheckbox').checked;
+      
+      // Khởi tạo player nếu chưa có
+      if (window.YT && window.YT.Player) {
+        initYouTubePlayer(videoId);
+      } else {
+        // Nếu API chưa được tải, đợi và thử lại
+        loadYouTubeAPI();
+        window.onYouTubeIframeAPIReady = function() {
+          initYouTubePlayer(videoId);
+        };
+      }
+      
+      showVideoStatus('Đang phát video trên tất cả các trang...', 'success');
+    }
+    
+    // Hàm dừng video
+    function stopVideo() {
+      if (videoState.player) {
+        videoState.player.stopVideo();
+      }
+      
+      videoState.isPlaying = false;
+      videoState.videoId = null;
+      updateVideoState();
+      
+      showVideoStatus('Đã dừng phát video trên tất cả các trang.', 'success');
+    }
+    
+    // Hàm hiển thị trạng thái video
+    function showVideoStatus(message, type) {
+      const statusElement = document.getElementById('videoStatus');
+      statusElement.textContent = message;
+      statusElement.style.display = 'block';
+      
+      if (type === 'error') {
+        statusElement.style.color = '#dc3545';
+        statusElement.style.background = 'rgba(220, 53, 69, 0.2)';
+      } else {
+        statusElement.style.color = '#28a745';
+        statusElement.style.background = 'rgba(40, 167, 69, 0.2)';
+      }
+      
+      // Ẩn thông báo sau 5 giây
+      setTimeout(() => {
+        statusElement.style.display = 'none';
+      }, 5000);
+    }
+    
+    // Hàm thêm video vào danh sách phát
+    function addToPlaylist() {
+      const videoUrl = document.getElementById('playlistUrlInput').value.trim();
+      const videoId = getYouTubeVideoId(videoUrl);
+      
+      if (!videoId) {
+        showVideoStatus('URL video không hợp lệ. Vui lòng nhập URL YouTube hợp lệ.', 'error');
+        return;
+      }
+      
+      // Kiểm tra xem video đã có trong danh sách chưa
+      if (videoState.playlist.includes(videoId)) {
+        showVideoStatus('Video này đã có trong danh sách phát.', 'error');
+        return;
+      }
+      
+      // Thêm video vào danh sách phát
+      videoState.playlist.push(videoId);
+      document.getElementById('playlistUrlInput').value = '';
+      
+      // Cập nhật giao diện danh sách phát
+      updatePlaylistUI();
+      
+      // Cập nhật trạng thái lên Firebase
+      updateVideoState();
+      
+      showVideoStatus('Đã thêm video vào danh sách phát.', 'success');
+    }
+    
+    // Hàm cập nhật giao diện danh sách phát
+    function updatePlaylistUI() {
+      const playlistContainer = document.getElementById('playlistItems');
+      
+      // Xóa nội dung hiện tại
+      playlistContainer.innerHTML = '';
+      
+      if (videoState.playlist.length === 0) {
+        playlistContainer.innerHTML = '<div class="empty-playlist">Chưa có video nào trong danh sách phát</div>';
+        return;
+      }
+      
+      // Thêm các video vào danh sách
+      videoState.playlist.forEach((videoId, index) => {
+        const playlistItem = document.createElement('div');
+        playlistItem.className = 'playlist-item';
+        if (index === videoState.currentPlaylistIndex) {
+          playlistItem.style.background = 'rgba(40, 167, 69, 0.3)';
+        }
+        
+        const itemTitle = document.createElement('div');
+        itemTitle.className = 'playlist-item-title';
+        itemTitle.textContent = `Video ${index + 1}: ${videoId}`;
+        
+        const itemActions = document.createElement('div');
+        itemActions.className = 'playlist-item-actions';
+        
+        const playBtn = document.createElement('button');
+        playBtn.className = 'playlist-item-btn';
+        playBtn.textContent = 'Phát';
+        playBtn.style.background = '#28a745';
+        playBtn.style.color = 'white';
+        playBtn.onclick = () => playVideoFromPlaylist(index);
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'playlist-item-btn';
+        removeBtn.textContent = 'Xóa';
+        removeBtn.style.background = '#dc3545';
+        removeBtn.style.color = 'white';
+        removeBtn.onclick = () => removeFromPlaylist(index);
+        
+        itemActions.appendChild(playBtn);
+        itemActions.appendChild(removeBtn);
+        
+        playlistItem.appendChild(itemTitle);
+        playlistItem.appendChild(itemActions);
+        
+        playlistContainer.appendChild(playlistItem);
+      });
+    }
+    
+    // Hàm phát video từ danh sách phát
+    function playVideoFromPlaylist(index) {
+      if (index >= 0 && index < videoState.playlist.length) {
+        videoState.currentPlaylistIndex = index;
+        const videoId = videoState.playlist[index];
+        
+        // Cập nhật trạng thái tắt tiếng từ checkbox
+        videoState.isMuted = document.getElementById('muteVideoCheckbox').checked;
+        
+        // Khởi tạo player nếu chưa có
+        if (window.YT && window.YT.Player) {
+          initYouTubePlayer(videoId);
+        } else {
+          // Nếu API chưa được tải, đợi và thử lại
+          loadYouTubeAPI();
+          window.onYouTubeIframeAPIReady = function() {
+            initYouTubePlayer(videoId);
+          };
+        }
+        
+        // Cập nhật giao diện danh sách phát
+        updatePlaylistUI();
+        
+        // Cập nhật trạng thái lên Firebase
+        updateVideoState();
+        
+        showVideoStatus(`Đang phát video ${index + 1} từ danh sách phát...`, 'success');
+      }
+    }
+    
+    // Hàm phát toàn bộ danh sách phát
+    function playPlaylist() {
+      if (videoState.playlist.length === 0) {
+        showVideoStatus('Danh sách phát trống. Vui lòng thêm video vào danh sách.', 'error');
+        return;
+      }
+      
+      // Bắt đầu phát từ video đầu tiên nếu chưa có video nào đang phát
+      if (videoState.currentPlaylistIndex === -1) {
+        playVideoFromPlaylist(0);
+      } else {
+        // Tiếp tục phát từ video hiện tại
+        playVideoFromPlaylist(videoState.currentPlaylistIndex);
+      }
+    }
+    
+    // Hàm xóa video khỏi danh sách phát
+    function removeFromPlaylist(index) {
+      if (index >= 0 && index < videoState.playlist.length) {
+        // Nếu đang phát video này, dừng phát
+        if (index === videoState.currentPlaylistIndex) {
+          stopVideo();
+          videoState.currentPlaylistIndex = -1;
+        } 
+        // Nếu xóa video trước video đang phát, cập nhật lại index
+        else if (index < videoState.currentPlaylistIndex) {
+          videoState.currentPlaylistIndex--;
+        }
+        
+        // Xóa video khỏi danh sách
+        videoState.playlist.splice(index, 1);
+        
+        // Cập nhật giao diện danh sách phát
+        updatePlaylistUI();
+        
+        // Cập nhật trạng thái lên Firebase
+        updateVideoState();
+        
+        showVideoStatus('Đã xóa video khỏi danh sách phát.', 'success');
+      }
+    }
+    
+    // Hàm xóa toàn bộ danh sách phát
+    function clearPlaylist() {
+      videoState.playlist = [];
+      videoState.currentPlaylistIndex = -1;
+      
+      // Cập nhật giao diện danh sách phát
+      updatePlaylistUI();
+      
+      // Cập nhật trạng thái lên Firebase
+      updateVideoState();
+      
+      showVideoStatus('Đã xóa toàn bộ danh sách phát.', 'success');
+    }
+    
+    // Thêm event listener cho các nút video khi trang đã tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+      const playVideoBtn = document.getElementById('playVideoBtn');
+      const stopVideoBtn = document.getElementById('stopVideoBtn');
+      const muteVideoCheckbox = document.getElementById('muteVideoCheckbox');
+      const addToPlaylistBtn = document.getElementById('addToPlaylistBtn');
+      const playPlaylistBtn = document.getElementById('playPlaylistBtn');
+      const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
+      
+      if (playVideoBtn) {
+        playVideoBtn.addEventListener('click', playVideo);
+      }
+      
+      if (stopVideoBtn) {
+        stopVideoBtn.addEventListener('click', stopVideo);
+      }
+      
+      if (muteVideoCheckbox) {
+        muteVideoCheckbox.addEventListener('change', function() {
+          videoState.isMuted = this.checked;
+          
+          if (videoState.player) {
+            if (this.checked) {
+              videoState.player.mute();
+            } else {
+              videoState.player.unMute();
+            }
+            updateVideoState();
+          }
+        });
+      }
+      
+      if (addToPlaylistBtn) {
+        addToPlaylistBtn.addEventListener('click', addToPlaylist);
+      }
+      
+      if (playPlaylistBtn) {
+        playPlaylistBtn.addEventListener('click', playPlaylist);
+      }
+      
+      if (clearPlaylistBtn) {
+        clearPlaylistBtn.addEventListener('click', clearPlaylist);
+      }
+      
+      // Lắng nghe thay đổi trạng thái video từ Firebase
+      db.ref('videoState').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          // Cập nhật trạng thái video từ Firebase
+          if (data.videoId && currentAdmin) {
+            // Hiển thị thông tin video hiện tại trong input
+            document.getElementById('videoUrlInput').value = `https://www.youtube.com/watch?v=${data.videoId}`;
+          }
+          
+          // Cập nhật trạng thái tắt tiếng
+          if (data.isMuted !== undefined) {
+            videoState.isMuted = data.isMuted;
+            document.getElementById('muteVideoCheckbox').checked = data.isMuted;
+          }
+          
+          // Cập nhật danh sách phát
+          if (data.playlist) {
+            videoState.playlist = data.playlist;
+            videoState.currentPlaylistIndex = data.currentPlaylistIndex || -1;
+            updatePlaylistUI();
+          }
         }
       });
     });

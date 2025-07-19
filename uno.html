@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Uno 4 người online Firebase Demo</title>
   <style>
     /* CSS tương tự như trên */
@@ -11,6 +12,26 @@
       color: #fff;
       text-align: center;
       margin: 0; padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* CSS cho video nền */
+    #backgroundVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none;
+      display: none;
+    }
+    
+    .content-wrapper {
+      position: relative;
+      z-index: 1;
     }
     
     /* CSS cho khung chat */
@@ -28,6 +49,29 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
       z-index: 100;
       transition: all 0.3s ease;
+    }
+    
+    /* Media Queries cho chat container */
+    @media (max-width: 768px) {
+      .chat-container {
+        width: 85%;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 20px;
+      }
+      .chat-container.minimized {
+        height: 50px;
+        width: 200px;
+        left: 20px;
+        transform: none;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .chat-container {
+        width: 95%;
+        height: 350px;
+      }
     }
     .chat-header {
       background: rgba(30, 126, 52, 0.8);
@@ -123,6 +167,7 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      width: 100%;
     }
     .input-group {
       margin-bottom: 15px;
@@ -141,6 +186,7 @@
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      width: 100%;
     }
     .room-item {
       background: #28a745;
@@ -159,6 +205,39 @@
       border-radius: 8px;
       margin: 15px auto;
       max-width: 400px;
+      width: 100%;
+    }
+    
+    /* Media Queries cho các container */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .room-container,
+      .room-list,
+      .player-list {
+        padding: 15px 10px;
+      }
+      .input-group input {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .input-group button {
+        align-self: center;
+        margin-top: 5px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .room-container,
+      .room-list,
+      .player-list {
+        padding: 10px;
+      }
     }
     .player-item {
       padding: 5px;
@@ -426,8 +505,16 @@
       width: auto;
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
+  <!-- Div cho video nền -->
+  <div id="backgroundVideo"></div>
+  
+  <div class="content-wrapper">
 
   <h1>Uno 4 người online với Firebase</h1>
   
@@ -2260,6 +2347,117 @@
       }
     });
 
+    // Khởi tạo YouTube API và xử lý video nền
+    let ytPlayer = null;
+    
+    // Hàm tải YouTube API
+    function loadYouTubeAPI() {
+      // Tạo script tag để tải YouTube API
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+    
+    // Hàm khởi tạo YouTube Player
+    function initYouTubePlayer(videoId, startTime) {
+      if (ytPlayer) {
+        ytPlayer.loadVideoById({
+          videoId: videoId,
+          startSeconds: startTime
+        });
+      } else {
+        ytPlayer = new YT.Player('backgroundVideo', {
+          videoId: videoId,
+          playerVars: {
+            'autoplay': 1,
+            'controls': 0,
+            'showinfo': 0,
+            'rel': 0,
+            'iv_load_policy': 3,
+            'modestbranding': 1,
+            'loop': 1,
+            'start': startTime,
+            'playsinline': 1,
+            'mute': 1 // Mặc định tắt tiếng, sẽ được cập nhật sau khi player sẵn sàng
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+    }
+    
+    // Hàm xử lý khi player sẵn sàng
+    function onPlayerReady(event) {
+      // Lấy trạng thái tắt tiếng từ Firebase
+      firebase.database().ref('videoState').once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.isMuted !== undefined) {
+          if (data.isMuted) {
+            event.target.mute();
+          } else {
+            event.target.unMute();
+          }
+        }
+      });
+      
+      event.target.playVideo();
+      document.getElementById('backgroundVideo').style.display = 'block';
+    }
+    
+    // Hàm xử lý khi trạng thái player thay đổi
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        // Phát lại video khi kết thúc
+        event.target.playVideo();
+      }
+    }
+    
+    // Lắng nghe thay đổi trạng thái video từ Firebase
+    function listenToVideoState() {
+      const db = firebase.database();
+      db.ref('videoState').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        
+        if (data.videoId && data.isPlaying) {
+          // Tính toán thời gian hiện tại của video
+          const timeSinceUpdate = (Date.now() - data.lastUpdateTime) / 1000;
+          const currentTime = data.currentTime + timeSinceUpdate;
+          
+          // Hiển thị và phát video
+          if (window.YT && window.YT.Player) {
+            initYouTubePlayer(data.videoId, currentTime);
+            
+            // Áp dụng trạng thái tắt tiếng
+            if (ytPlayer) {
+              if (data.isMuted) {
+                ytPlayer.mute();
+              } else {
+                ytPlayer.unMute();
+              }
+            }
+          } else {
+            loadYouTubeAPI();
+            window.onYouTubeIframeAPIReady = function() {
+              initYouTubePlayer(data.videoId, currentTime);
+            };
+          }
+        } else {
+          // Dừng và ẩn video
+          if (ytPlayer) {
+            ytPlayer.stopVideo();
+          }
+          document.getElementById('backgroundVideo').style.display = 'none';
+        }
+      });
+    }
+    
+    // Lắng nghe trạng thái video
+    listenToVideoState();
   </script>
+  </div> <!-- Đóng content-wrapper -->
 </body>
 </html>
