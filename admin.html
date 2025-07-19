@@ -785,7 +785,7 @@
       // Lọc dữ liệu
       let filteredUsers = currentData.users.filter(user => {
         // Lọc theo từ khóa tìm kiếm
-        const matchesSearch = user.displayName.toLowerCase().includes(searchTerm) || 
+        const matchesSearch = (user.displayName && user.displayName.toLowerCase().includes(searchTerm)) || 
                              (user.email && user.email.toLowerCase().includes(searchTerm));
         
         // Lọc theo loại người dùng
