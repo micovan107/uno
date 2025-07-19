@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cờ Vua Online - Lazi Games</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #146c43;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .room-info {
+      background: #1e7e34;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .room-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .player-list {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .player {
+      background: rgba(0,0,0,0.2);
+      padding: 10px 15px;
+      border-radius: 8px;
+      min-width: 200px;
+    }
+    .player.current {
+      background: #28a745;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+    .player.host::after {
+      content: '👑';
+      margin-left: 5px;
+    }
+    .player-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .player-points {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 50px);
+      grid-template-rows: repeat(8, 50px);
+      gap: 0;
+      margin: 20px auto;
+      border: 5px solid #000;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .square {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .white {
+      background-color: #f0d9b5;
+      color: #000;
+    }
+    .black {
+      background-color: #b58863;
+      color: #000;
+    }
+    .highlight {
+      background-color: rgba(255, 255, 0, 0.5);
+    }
+    .check {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+    .last-move {
+      background-color: rgba(0, 255, 0, 0.3);
+    }
+    .possible-move {
+      position: relative;
+    }
+    .possible-move::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+    }
+    .possible-capture {
+      position: relative;
+    }
+    .possible-capture::after {
+      content: '';
+      position: absolute;
+      width: 46px;
+      height: 46px;
+      border: 2px solid rgba(255, 0, 0, 0.7);
+      border-radius: 50%;
+    }
+    .game-status {
+      margin: 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background: #218838;
+    }
+    .btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .btn-danger {
+      background: #dc3545;
+    }
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    .promotion-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .promotion-content {
+      background-color: #1e7e34;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .promotion-title {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .promotion-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    .piece {
+      font-size: 40px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: background-color 0.2s;
+    }
+    .piece:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .waiting-room {
+      text-align: center;
+      margin: 50px auto;
+      max-width: 600px;
+      background: #1e7e34;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    .waiting-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .waiting-players {
+      margin: 20px 0;
+    }
+    .chat-container {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .chat-messages {
+      height: 200px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.3);
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .chat-input-container {
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.9);
+    }
+    .chat-send-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .message {
+      margin-bottom: 8px;
+      word-wrap: break-word;
+    }
+    .message-sender {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .system-message {
+      color: #ffc107;
+      font-style: italic;
+    }
+    .spectator-badge {
+      background: #6c757d;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+    @media (max-width: 768px) {
+      .board {
+        grid-template-columns: repeat(8, 40px);
+        grid-template-rows: repeat(8, 40px);
+      }
+      .square {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+      }
+      .possible-capture::after {
+        width: 36px;
+        height: 36px;
+      }
+      .player-list {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .player {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal phong cấp tốt -->
+  <div id="promotion-modal" class="promotion-modal">
+    <div class="promotion-content">
+      <div class="promotion-title">Chọn quân cờ phong cấp</div>
+      <div class="promotion-options">
+        <div class="piece" data-piece="q">♕</div>
+        <div class="piece" data-piece="r">♖</div>
+        <div class="piece" data-piece="b">♗</div>
+        <div class="piece" data-piece="n">♘</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Cờ Vua Online</h1>
+      <button id="leaveRoomBtn" class="btn btn-danger">Rời phòng</button>
+    </div>
+
+    <div class="room-info">
+      <div class="room-name" id="roomName">Phòng: ...</div>
+      <div id="gameStatus">Đang chờ người chơi...</div>
+    </div>
+
+    <div id="waitingRoom" class="waiting-room">
+      <div class="waiting-title">Đang chờ người chơi</div>
+      <div id="waitingPlayers" class="waiting-players"></div>
+      <button id="startGameBtn" class="btn" style="display: none;">Bắt đầu trò chơi</button>
+    </div>
+
+    <div id="gameBoard" style="display: none;">
+      <div class="player-list" id="playerList"></div>
+
+      <div class="game-container">
+        <div id="status" class="game-status">Lượt của: Trắng</div>
+        <div id="board" class="board"></div>
+        <div id="message" style="margin-bottom: 10px;"></div>
+        <div class="game-controls">
+          <button id="restart-btn" class="btn" style="display: none;">Chơi lại</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input-container">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Nhập tin nhắn..." />
+        <button id="chatSendBtn" class="chat-send-btn">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+  <script>
+    // Cấu hình Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgITWCnQO7pW2-VOAgpKFsK6GN8H037HM",
+      authDomain: "masoi-92684.firebaseapp.com",
+      databaseURL: "https://masoi-92684-default-rtdb.firebaseio.com",
+      projectId: "masoi-92684",
+      storageBucket: "masoi-92684.firebasestorage.app",
+      messagingSenderId: "1030518945375",
+      appId: "1:1030518945375:web:a531a0233c0dcbde120dea",
+      measurementId: "G-QNS4GVQ178"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    
+    // Biến lưu trữ thông tin trò chơi
+    let game = new Chess();
+    let selectedSquare = null;
+    let promotionMove = null;
+    let currentUser = null;
+    let currentRoomId = null;
+    let currentRoomName = null;
+    let isSpectator = false;
+    let isHost = false;
+    let playerColor = null; // 'w' hoặc 'b'
+    let opponentId = null;
+    
+    // Tham chiếu đến các listener Firebase
+    let gameStateRef = null;
+    let roomPlayersRef = null;
+    let chatRef = null;
+    
+    // Khởi tạo khi trang được tải
+    window.addEventListener('DOMContentLoaded', () => {
+      // Lấy thông tin người dùng từ localStorage
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      if (!userInfo || !userInfo.uid) {
+        // Chuyển hướng về trang chủ nếu chưa đăng nhập
+        window.location.href = 'trangchu.html';
+        return;
+      }
+      
+      currentUser = userInfo;
+      
+      // Kiểm tra xem người dùng có phải là người xem không
+      isSpectator = localStorage.getItem('isSpectator') === 'true';
+      
+      // Lấy ID phòng từ localStorage
+      const roomId = localStorage.getItem('selectedRoomId');
+      if (!roomId) {
+        // Chuyển hướng về trang chủ nếu không có ID phòng
+        window.location.href = 'trangchu.html';
+        return;
+      }
+      
+      // Lấy thông tin phòng từ Firebase
+      db.ref('rooms/' + roomId).once('value', snapshot => {
+        if (!snapshot.exists()) {
+          // Chuyển hướng về trang chủ nếu phòng không tồn tại
+          window.location.href = 'trangchu.html';
+          return;
+        }
+        
+        const roomData = snapshot.val();
+        currentRoomId = roomId;
+        currentRoomName = roomData.name;
+        
+        // Hiển thị tên phòng
+        document.getElementById('roomName').textContent = 'Phòng: ' + roomData.name;
+        
+        // Tham gia phòng hoặc xem phòng
+        if (isSpectator) {
+          spectateRoom(roomId, roomData.name);
+        } else {
+          joinRoom(roomId, roomData.name);
+        }
+      });
+      
+      // Thêm sự kiện cho các nút
+      document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
+      document.getElementById('startGameBtn').addEventListener('click', startGame);
+      document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+      document.getElementById('chatInput').addEventListener('keypress', e => {
+        if (e.key === 'Enter') sendChatMessage();
+      });
+      document.getElementById('restart-btn').addEventListener('click', restartGame);
+    });
+    
+    // Hàm tham gia phòng
+    function joinRoom(roomId, roomName) {
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      if (!currentUser) {
+        alert('Vui lòng đăng nhập trước khi tham gia phòng!');
+        window.location.href = 'trangchu.html';
+        return;
+      }
+      
+      // Cập nhật UI
+      document.getElementById('waitingRoom').style.display = 'block';
+      document.getElementById('gameBoard').style.display = 'none';
+      
+      // Thêm người chơi vào phòng
+      const roomRef = db.ref('rooms/' + roomId);
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) {
+          alert('Phòng không tồn tại!');
+          window.location.href = 'trangchu.html';
+          return;
+        }
+        
+        const roomData = snapshot.val();
+        
+        // Kiểm tra xem phòng đã đầy chưa
+        const players = roomData.players || {};
+        const playerCount = Object.keys(players).length;
+        
+        if (playerCount >= 2 && !players[currentUser.uid]) {
+          alert('Phòng đã đầy!');
+          isSpectator = true;
+          spectateRoom(roomId, roomName);
+          return;
+        }
+        
+        // Kiểm tra xem người chơi đã tham gia phòng chưa
+        if (!players[currentUser.uid]) {
+          // Thêm người chơi vào phòng
+          const playerData = {
+            displayName: currentUser.displayName,
+            points: currentUser.points || 0,
+            isHost: playerCount === 0, // Người chơi đầu tiên là chủ phòng
+            joinedAt: firebase.database.ServerValue.TIMESTAMP
+          };
+          
+          roomRef.child('players/' + currentUser.uid).set(playerData);
+          
+          // Nếu là người chơi đầu tiên, cập nhật host của phòng
+          if (playerCount === 0) {
+            roomRef.update({ host: currentUser.uid });
+            isHost = true;
+          }
+        } else {
+          // Người chơi đã tham gia phòng trước đó
+          isHost = players[currentUser.uid].isHost;
+        }
+        
+        // Lắng nghe thay đổi của danh sách người chơi trong phòng
+        listenToRoomPlayers(roomId);
+        
+        // Lắng nghe thay đổi của trò chơi nếu đã bắt đầu
+      if (roomData.status === 'playing') {
+        listenToGameChanges(roomId);
+        document.getElementById('waitingRoom').style.display = 'none';
+        document.getElementById('gameBoard').style.display = 'block';
+        
+        // Đảm bảo bàn cờ được khởi tạo cho người chơi thứ hai
+        setTimeout(() => {
+          console.log('Đang cố gắng hiển thị bàn cờ cho người chơi thứ hai...');
+          ensureBoardIsVisible();
+          
+          // Thêm một lần kiểm tra nữa sau 1 giây để đảm bảo bàn cờ hiển thị
+          setTimeout(() => {
+            console.log('Kiểm tra lại bàn cờ sau 1 giây...');
+            ensureBoardIsVisible();
+          }, 1000);
+        }, 1000);
+      }
+        
+        // Lắng nghe tin nhắn chat
+        listenToChat(roomId);
+        
+        // Hiển thị nút bắt đầu game nếu là chủ phòng
+        document.getElementById('startGameBtn').style.display = isHost ? 'block' : 'none';
+      });
+    }
+    
+    // Hàm xem phòng
+    function spectateRoom(roomId, roomName) {
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      if (!currentUser) {
+        alert('Vui lòng đăng nhập trước khi xem phòng!');
+        window.location.href = 'trangchu.html';
+        return;
+      }
+      
+      // Cập nhật UI
+      document.getElementById('waitingRoom').style.display = 'block';
+      document.getElementById('gameBoard').style.display = 'none';
+      
+      // Thêm người xem vào phòng
+      const roomRef = db.ref('rooms/' + roomId);
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) {
+          alert('Phòng không tồn tại!');
+          window.location.href = 'trangchu.html';
+          return;
+        }
+        
+        const roomData = snapshot.val();
+        
+        // Thêm người xem vào phòng
+        const spectatorData = {
+          displayName: currentUser.displayName,
+          joinedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        roomRef.child('spectators/' + currentUser.uid).set(spectatorData);
+        
+        // Lắng nghe thay đổi của danh sách người chơi trong phòng
+        listenToRoomPlayers(roomId);
+        
+        // Lắng nghe thay đổi của trò chơi nếu đã bắt đầu
+      if (roomData.status === 'playing') {
+        listenToGameChanges(roomId);
+        document.getElementById('waitingRoom').style.display = 'none';
+        document.getElementById('gameBoard').style.display = 'block';
+        
+        // Đảm bảo bàn cờ được khởi tạo cho người xem
+        setTimeout(() => {
+          console.log('Đang cố gắng hiển thị bàn cờ cho người xem...');
+          ensureBoardIsVisible();
+          
+          // Thêm một lần kiểm tra nữa sau 1 giây để đảm bảo bàn cờ hiển thị
+          setTimeout(() => {
+            console.log('Kiểm tra lại bàn cờ sau 1 giây...');
+            ensureBoardIsVisible();
+          }, 1000);
+        }, 1000);
+      }
+        
+        // Lắng nghe tin nhắn chat
+        listenToChat(roomId);
+        
+        // Ẩn nút bắt đầu game vì là người xem
+        document.getElementById('startGameBtn').style.display = 'none';
+      });
+    }
+    
+    // Hàm lắng nghe thay đổi của danh sách người chơi trong phòng
+    function listenToRoomPlayers(roomId) {
+      roomPlayersRef = db.ref('rooms/' + roomId);
+      roomPlayersRef.on('value', snapshot => {
+        if (!snapshot.exists()) {
+          alert('Phòng đã bị xóa!');
+          window.location.href = 'trangchu.html';
+          return;
+        }
+        
+        const roomData = snapshot.val();
+        const players = roomData.players || {};
+        const spectators = roomData.spectators || {};
+        
+        // Cập nhật danh sách người chơi trong phòng chờ
+        const waitingPlayersElement = document.getElementById('waitingPlayers');
+        waitingPlayersElement.innerHTML = '';
+        
+        // Hiển thị danh sách người chơi
+        Object.keys(players).forEach(playerId => {
+          const player = players[playerId];
+          const playerElement = document.createElement('div');
+          playerElement.className = 'player';
+          if (player.isHost) playerElement.classList.add('host');
+          
+          playerElement.innerHTML = `
+            <div class="player-name">${player.displayName}</div>
+            <div class="player-points">${player.points} điểm</div>
+          `;
+          
+          waitingPlayersElement.appendChild(playerElement);
+        });
+        
+        // Hiển thị danh sách người xem
+        Object.keys(spectators).forEach(spectatorId => {
+          const spectator = spectators[spectatorId];
+          const spectatorElement = document.createElement('div');
+          spectatorElement.className = 'player';
+          
+          spectatorElement.innerHTML = `
+            <div class="player-name">${spectator.displayName} <span class="spectator-badge">Người xem</span></div>
+          `;
+          
+          waitingPlayersElement.appendChild(spectatorElement);
+        });
+        
+        // Cập nhật trạng thái chủ phòng
+        isHost = players[currentUser.uid]?.isHost || false;
+        document.getElementById('startGameBtn').style.display = isHost && roomData.status !== 'playing' ? 'block' : 'none';
+        
+        // Nếu trò chơi đã bắt đầu, hiển thị bàn cờ
+        if (roomData.status === 'playing') {
+          document.getElementById('waitingRoom').style.display = 'none';
+          document.getElementById('gameBoard').style.display = 'block';
+          
+          // Cập nhật danh sách người chơi trong game
+          updatePlayerList(roomData);
+
+        // Nếu trò chơi đã bắt đầu mà client chưa lắng nghe game
+        if (roomData.status === 'playing') {
+          document.getElementById('waitingRoom').style.display = 'none';
+          document.getElementById('gameBoard').style.display = 'block';
+
+          // Nếu chưa lắng nghe thì bắt đầu
+          if (!gameStateRef) {
+            listenToGameChanges(roomId);
+
+            setTimeout(() => {
+              ensureBoardIsVisible();
+              setTimeout(() => {
+                ensureBoardIsVisible();
+              }, 1000);
+            }, 1000);
+          }
+        }
+    
+        }
+      });
+    }
+    
+    // Hàm cập nhật danh sách người chơi trong game
+    function updatePlayerList(roomData) {
+      const playerListElement = document.getElementById('playerList');
+      playerListElement.innerHTML = '';
+      
+      const players = roomData.players || {};
+      const playerIds = Object.keys(players);
+      
+      // Nếu có 2 người chơi, hiển thị thông tin người chơi
+      if (playerIds.length === 2) {
+        // Xác định màu quân cờ cho người chơi hiện tại
+        if (!isSpectator && playerColor === null) {
+          // Người chơi đầu tiên sẽ chơi quân trắng
+          const sortedPlayerIds = playerIds.sort((a, b) => players[a].joinedAt - players[b].joinedAt);
+          playerColor = sortedPlayerIds[0] === currentUser.uid ? 'w' : 'b';
+          
+          // Lưu ID đối thủ
+          opponentId = sortedPlayerIds[0] === currentUser.uid ? sortedPlayerIds[1] : sortedPlayerIds[0];
+        }
+        
+        // Hiển thị thông tin người chơi
+        playerIds.forEach(playerId => {
+          const player = players[playerId];
+          const playerElement = document.createElement('div');
+          
+          // Xác định màu quân cờ cho người chơi này
+          const color = playerIds.indexOf(playerId) === 0 ? 'w' : 'b';
+          const colorText = color === 'w' ? 'Trắng' : 'Đen';
+          
+          // Thêm class cho người chơi hiện tại và chủ phòng
+          playerElement.className = 'player';
+          if (playerId === currentUser.uid) playerElement.classList.add('current');
+          if (player.isHost) playerElement.classList.add('host');
+          
+          // Kiểm tra xem có phải lượt của người chơi này không
+          const isCurrentTurn = roomData.gameState && roomData.gameState.turn === color;
+          if (isCurrentTurn) playerElement.classList.add('current');
+          
+          playerElement.innerHTML = `
+            <div class="player-name">${player.displayName} (${colorText})</div>
+            <div class="player-points">${player.points} điểm</div>
+          `;
+          
+          playerListElement.appendChild(playerElement);
+        });
+        
+        // Hiển thị người xem
+        const spectators = roomData.spectators || {};
+        if (Object.keys(spectators).length > 0) {
+          const spectatorsElement = document.createElement('div');
+          spectatorsElement.className = 'player';
+          
+          const spectatorNames = Object.values(spectators).map(s => s.displayName).join(', ');
+          spectatorsElement.innerHTML = `
+            <div class="player-name">Người xem: ${spectatorNames}</div>
+          `;
+          
+          playerListElement.appendChild(spectatorsElement);
+        }
+      }
+    }
+    
+    // Hàm lắng nghe thay đổi của trò chơi
+    function listenToGameChanges(roomId) {
+      console.log('Bắt đầu lắng nghe thay đổi của trò chơi cho phòng:', roomId);
+      gameStateRef = db.ref('rooms/' + roomId + '/gameState');
+      gameStateRef.on('value', snapshot => {
+        if (!snapshot.exists()) {
+          console.log('Không có dữ liệu trò chơi cho phòng:', roomId);
+          return;
+        }
+        
+        try {
+          const gameState = snapshot.val();
+          console.log('Nhận được dữ liệu trò chơi mới:', gameState.fen);
+          
+          // Cập nhật trạng thái game từ Firebase
+          game = new Chess(gameState.fen);
+          
+          // Đảm bảo bàn cờ được khởi tạo và hiển thị
+          ensureBoardIsVisible();
+          
+          // Cập nhật trạng thái game
+          updateGameStatus();
+        } catch (error) {
+          console.error('Lỗi khi cập nhật trạng thái game:', error);
+        }
+        
+        // Kiểm tra nếu game kết thúc
+        try {
+          if (game && game.game_over()) {
+            console.log('Trò chơi đã kết thúc');
+            // Hiển thị nút chơi lại nếu là chủ phòng
+            document.getElementById('restart-btn').style.display = isHost ? 'block' : 'none';
+            
+            // Cập nhật điểm số nếu có người thắng
+            if (game.in_checkmate() && !isSpectator) {
+              const winner = game.turn() === 'w' ? 'b' : 'w';
+              console.log('Người thắng:', winner);
+              if ((playerColor === winner && !isSpectator) || 
+                  (opponentId && winner !== playerColor && isHost)) {
+                updatePlayerPoints(winner === 'w' ? 0 : 1);
+              }
+            }
+          } else {
+            // Ẩn nút chơi lại
+            document.getElementById('restart-btn').style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Lỗi khi kiểm tra trạng thái kết thúc game:', error);
+        }
+      });
+    }
+    
+    // Hàm cập nhật điểm số người chơi
+    function updatePlayerPoints(winnerIndex) {
+      if (isSpectator) return;
+      
+      const roomRef = db.ref('rooms/' + currentRoomId);
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const roomData = snapshot.val();
+        const players = roomData.players || {};
+        const playerIds = Object.keys(players).sort((a, b) => players[a].joinedAt - players[b].joinedAt);
+        
+        if (playerIds.length !== 2) return;
+        
+        const winnerId = playerIds[winnerIndex];
+        
+        // Cập nhật điểm số cho người thắng
+        const winnerRef = db.ref('rooms/' + currentRoomId + '/players/' + winnerId);
+        winnerRef.once('value', snapshot => {
+          if (!snapshot.exists()) return;
+          
+          const winnerData = snapshot.val();
+          winnerRef.update({ points: (winnerData.points || 0) + 10 });
+        });
+        
+        // Cập nhật thống kê người dùng nếu không phải là khách
+        if (!currentUser.isGuest) {
+          const userRef = db.ref('users/' + winnerId);
+          userRef.once('value', snapshot => {
+            if (!snapshot.exists()) return;
+            
+            const userData = snapshot.val();
+            userRef.update({
+              points: (userData.points || 0) + 10,
+              chessWins: (userData.chessWins || 0) + 1,
+              totalGames: (userData.totalGames || 0) + 1
+            });
+          });
+          
+          // Cập nhật thống kê cho người thua
+          const loserId = playerIds[1 - winnerIndex];
+          const loserRef = db.ref('users/' + loserId);
+          loserRef.once('value', snapshot => {
+            if (!snapshot.exists()) return;
+            
+            const userData = snapshot.val();
+            loserRef.update({
+              totalGames: (userData.totalGames || 0) + 1
+            });
+          });
+        }
+      });
+    }
+    
+    // Hàm lắng nghe tin nhắn chat
+    function listenToChat(roomId) {
+      chatRef = db.ref('rooms/' + roomId + '/chat');
+      chatRef.on('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const chatMessages = snapshot.val();
+        const chatMessagesElement = document.getElementById('chatMessages');
+        chatMessagesElement.innerHTML = '';
+        
+        // Hiển thị tin nhắn chat
+        Object.keys(chatMessages).forEach(messageId => {
+          const message = chatMessages[messageId];
+          const messageElement = document.createElement('div');
+          messageElement.className = 'message';
+          
+          if (message.type === 'system') {
+            messageElement.classList.add('system-message');
+            messageElement.textContent = message.text;
+          } else {
+            messageElement.innerHTML = `<span class="message-sender">${message.sender}:</span> ${message.text}`;
+          }
+          
+          chatMessagesElement.appendChild(messageElement);
+        });
+        
+        // Cuộn xuống tin nhắn mới nhất
+        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+      });
+    }
+    
+    // Hàm gửi tin nhắn chat
+    function sendChatMessage() {
+      const chatInput = document.getElementById('chatInput');
+      const message = chatInput.value.trim();
+      
+      if (!message) return;
+      
+      // Thêm tin nhắn vào Firebase
+      const chatRef = db.ref('rooms/' + currentRoomId + '/chat').push();
+      chatRef.set({
+        sender: currentUser.displayName,
+        text: message,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        type: 'user'
+      });
+      
+      // Xóa nội dung input
+      chatInput.value = '';
+    }
+    
+    // Hàm hiển thị thông báo trong chat
+    function showRoomMessage(message) {
+      const chatRef = db.ref('rooms/' + currentRoomId + '/chat').push();
+      chatRef.set({
+        text: message,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        type: 'system'
+      });
+    }
+    
+    // Hàm rời phòng
+    function leaveRoom() {
+      if (!currentRoomId) return;
+      
+      // Xóa người chơi/người xem khỏi phòng
+      const roomRef = db.ref('rooms/' + currentRoomId);
+      
+      if (isSpectator) {
+        // Xóa người xem khỏi phòng
+        roomRef.child('spectators/' + currentUser.uid).remove();
+        showRoomMessage(`${currentUser.displayName} đã rời khỏi phòng (người xem).`);
+        
+        // Kiểm tra xem còn người chơi nào không
+        checkAndRemoveEmptyRoom(roomRef);
+      } else {
+        roomRef.once('value', snapshot => {
+          if (!snapshot.exists()) return;
+          
+          const roomData = snapshot.val();
+          const players = roomData.players || {};
+          
+          // Xóa người chơi khỏi phòng
+          roomRef.child('players/' + currentUser.uid).remove();
+          
+          // Hiển thị thông báo
+          showRoomMessage(`${currentUser.displayName} đã rời khỏi phòng.`);
+          
+          // Nếu là chủ phòng, chuyển quyền chủ phòng cho người chơi khác
+          if (isHost) {
+            const remainingPlayers = Object.keys(players).filter(id => id !== currentUser.uid);
+            
+            if (remainingPlayers.length > 0) {
+              // Chuyển quyền chủ phòng cho người chơi đầu tiên còn lại
+              const newHostId = remainingPlayers[0];
+              roomRef.update({ host: newHostId });
+              roomRef.child('players/' + newHostId).update({ isHost: true });
+              
+              showRoomMessage(`${players[newHostId].displayName} đã trở thành chủ phòng mới.`);
+            } else {
+              // Nếu không còn người chơi nào, xóa phòng
+              roomRef.remove();
+            }
+          } else {
+            // Kiểm tra xem còn người chơi nào không
+            checkAndRemoveEmptyRoom(roomRef);
+          }
+          
+          // Nếu trò chơi đang diễn ra, cập nhật trạng thái phòng
+          if (roomData.status === 'playing') {
+            // Nếu còn người chơi, đặt trạng thái phòng về waiting
+            const remainingPlayers = Object.keys(players).filter(id => id !== currentUser.uid);
+            
+            if (remainingPlayers.length > 0) {
+              roomRef.update({ status: 'waiting' });
+            }
+          }
+        });
+      }
+      
+      // Ngừng lắng nghe các sự kiện Firebase
+      if (gameStateRef) gameStateRef.off();
+      if (roomPlayersRef) roomPlayersRef.off();
+      if (chatRef) chatRef.off();
+      
+      // Xóa thông tin phòng khỏi localStorage
+      localStorage.removeItem('selectedRoomId');
+      localStorage.removeItem('isSpectator');
+      
+      // Chuyển hướng về trang chủ
+      window.location.href = 'trangchu.html';
+    }
+    
+    // Hàm bắt đầu trò chơi
+    function startGame() {
+      if (!isHost) {
+        alert('Chỉ chủ phòng mới có thể bắt đầu trò chơi!');
+        return;
+      }
+      
+      const roomRef = db.ref('rooms/' + currentRoomId);
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const roomData = snapshot.val();
+        const players = roomData.players || {};
+        
+        // Kiểm tra xem có đủ 2 người chơi không
+        if (Object.keys(players).length < 2) {
+          alert('Cần ít nhất 2 người chơi để bắt đầu trò chơi!');
+          return;
+        }
+        
+        // Khởi tạo trò chơi mới
+        game = new Chess();
+        
+        // Cập nhật trạng thái phòng
+        roomRef.update({
+          status: 'playing',
+          gameState: {
+            fen: game.fen(),
+            turn: 'w',
+            lastMove: null
+          }
+        });
+        
+        // Hiển thị thông báo
+        showRoomMessage('Trò chơi đã bắt đầu!');
+        
+        // Cập nhật UI
+        document.getElementById('waitingRoom').style.display = 'none';
+        document.getElementById('gameBoard').style.display = 'block';
+        
+        // Lắng nghe thay đổi của trò chơi
+        listenToGameChanges(currentRoomId);
+        
+        // Đảm bảo bàn cờ được khởi tạo và hiển thị
+        setTimeout(() => {
+          console.log('Đang cố gắng hiển thị bàn cờ khi bắt đầu trò chơi...');
+          ensureBoardIsVisible();
+          
+          // Thêm một lần kiểm tra nữa sau 1 giây để đảm bảo bàn cờ hiển thị
+          setTimeout(() => {
+            console.log('Kiểm tra lại bàn cờ sau 1 giây...');
+            ensureBoardIsVisible();
+          }, 1000);
+        }, 1000);
+      });
+    }
+    
+    // Hàm khởi động lại trò chơi
+    function restartGame() {
+      if (!isHost) {
+        alert('Chỉ chủ phòng mới có thể khởi động lại trò chơi!');
+        return;
+      }
+      
+      // Khởi tạo trò chơi mới
+      game = new Chess();
+      selectedSquare = null;
+      
+      // Cập nhật trạng thái game trên Firebase
+      const gameStateRef = db.ref('rooms/' + currentRoomId + '/gameState');
+      gameStateRef.set({
+        fen: game.fen(),
+        turn: 'w',
+        lastMove: null
+      });
+      
+      // Hiển thị thông báo
+      showRoomMessage('Trò chơi đã được khởi động lại!');
+      
+      // Ẩn nút chơi lại
+      document.getElementById('restart-btn').style.display = 'none';
+    }
+    
+    // Hàm cập nhật hiển thị bàn cờ
+    function updateBoard() {
+      console.log('Cập nhật hiển thị bàn cờ...');
+      
+      // Kiểm tra xem game đã được khởi tạo chưa
+      if (!game) {
+        console.error('Đối tượng game chưa được khởi tạo trong updateBoard');
+        return;
+      }
+      
+      // Khởi tạo bàn cờ nếu chưa có
+      if (!document.querySelector('.square')) {
+        console.log('Khởi tạo bàn cờ trong updateBoard');
+        initializeBoard();
+        return;
+      }
+      
+      // Xóa tất cả quân cờ hiện tại
+      document.querySelectorAll('.square').forEach(square => {
+        square.textContent = '';
+        square.classList.remove('highlight', 'check', 'last-move', 'possible-move', 'possible-capture');
+      });
+      
+      try {
+        // Hiển thị quân cờ dựa trên trạng thái hiện tại của game
+        for (let row = 0; row < 8; row++) {
+          for (let col = 0; col < 8; col++) {
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+            const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+            
+            const squareId = files[col] + ranks[row];
+            const square = document.querySelector(`[data-square="${squareId}"]`);
+            
+            try {
+              const piece = game.get(squareId);
+              
+              if (square && piece) {
+                square.textContent = getPieceSymbol(piece.type, piece.color);
+              }
+            } catch (error) {
+              console.error('Lỗi khi lấy quân cờ tại', squareId, error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi khi cập nhật bàn cờ:', error);
+      }
+      
+      // Đánh dấu nước đi cuối cùng
+      const roomRef = db.ref('rooms/' + currentRoomId);
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const roomData = snapshot.val();
+        const gameState = roomData.gameState || {};
+        
+        if (gameState.lastMove) {
+          const fromSquare = document.querySelector(`[data-square="${gameState.lastMove.from}"]`);
+          const toSquare = document.querySelector(`[data-square="${gameState.lastMove.to}"]`);
+          
+          if (fromSquare) fromSquare.classList.add('last-move');
+          if (toSquare) toSquare.classList.add('last-move');
+        }
+      });
+      
+      // Kiểm tra nếu vua đang bị chiếu
+      highlightCheck();
+    }
+    
+    // Hàm khởi tạo bàn cờ
+    function initializeBoard() {
+      console.log('Đang khởi tạo bàn cờ...');
+      const chessBoard = document.getElementById('board');
+      
+      // Kiểm tra xem chessBoard có tồn tại không
+      if (!chessBoard) {
+        console.error('Không tìm thấy phần tử bàn cờ với id "board"');
+        return;
+      }
+      
+      chessBoard.innerHTML = '';
+      
+      // Kiểm tra xem game đã được khởi tạo chưa
+      if (!game) {
+        console.error('Đối tượng game chưa được khởi tạo');
+        // Khởi tạo game với vị trí ban đầu nếu chưa có
+        game = new Chess();
+      }
+      
+      console.log('Tạo 64 ô cờ...');
+      // Tạo 64 ô cờ
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          square.className = `square ${(row + col) % 2 === 0 ? 'white' : 'black'}`;
+          
+          // Xác định tọa độ của ô cờ
+          const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+          const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+          
+          const squareId = files[col] + ranks[row];
+          square.setAttribute('data-square', squareId);
+          
+          // Thêm sự kiện click cho ô cờ
+          square.addEventListener('click', () => handleSquareClick(squareId));
+          
+          try {
+            // Hiển thị quân cờ nếu có
+            const piece = game.get(squareId);
+            if (piece) {
+              square.textContent = getPieceSymbol(piece.type, piece.color);
+            }
+          } catch (error) {
+            console.error('Lỗi khi lấy quân cờ tại', squareId, error);
+          }
+          
+          chessBoard.appendChild(square);
+        }
+      }
+    }
+    
+    // Hàm xử lý khi người dùng click vào ô cờ
+    function handleSquareClick(squareId) {
+      try {
+        // Kiểm tra game đã được khởi tạo chưa
+        if (!game) {
+          console.error('Không thể xử lý click: game chưa được khởi tạo');
+          return;
+        }
+        
+        // Nếu là người xem hoặc không phải lượt của người chơi, không làm gì cả
+        if (isSpectator || game.turn() !== playerColor) return;
+        
+        const square = document.querySelector(`[data-square="${squareId}"]`);
+        if (!square) {
+          console.error(`Không tìm thấy ô cờ với id: ${squareId}`);
+          return;
+        }
+        
+        const piece = game.get(squareId);
+        
+        // Nếu chưa chọn ô nào và ô hiện tại có quân cờ của người chơi
+        if (!selectedSquare && piece && piece.color === playerColor) {
+          selectedSquare = squareId;
+          square.classList.add('highlight');
+          
+          // Hiển thị các nước đi hợp lệ
+          showPossibleMoves(squareId);
+        } 
+        // Nếu đã chọn ô và click vào ô khác
+        else if (selectedSquare) {
+          // Nếu click vào chính ô đã chọn, bỏ chọn
+          if (selectedSquare === squareId) {
+            selectedSquare = null;
+            clearHighlights();
+          } 
+          // Thử thực hiện nước đi
+          else {
+            const move = {
+              from: selectedSquare,
+              to: squareId,
+              promotion: 'q' // Mặc định phong hậu
+            };
+            
+            try {
+              // Kiểm tra xem có phải là nước đi phong cấp không
+              const piece = game.get(selectedSquare);
+              if (piece && piece.type === 'p') {
+                if ((piece.color === 'w' && squareId[1] === '8') || 
+                    (piece.color === 'b' && squareId[1] === '1')) {
+                  // Hiển thị modal chọn quân phong cấp
+                  promotionMove = move;
+                  showPromotionModal();
+                  return;
+                }
+              }
+            } catch (error) {
+              console.error('Lỗi khi kiểm tra nước đi phong cấp:', error);
+            }
+            
+            // Thực hiện nước đi
+            makeMove(move);
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi khi xử lý click vào ô cờ:', error);
+        selectedSquare = null;
+        clearHighlights();
+      }
+    }
+    
+    // Hàm hiển thị các nước đi hợp lệ
+    function showPossibleMoves(squareId) {
+      try {
+        if (!game) {
+          console.error('Không thể hiển thị nước đi: game chưa được khởi tạo');
+          return;
+        }
+        
+        const moves = game.moves({ square: squareId, verbose: true });
+        
+        if (!moves || moves.length === 0) {
+          console.log(`Không có nước đi hợp lệ cho ô ${squareId}`);
+          return;
+        }
+        
+        moves.forEach(move => {
+          try {
+            const targetSquare = document.querySelector(`[data-square="${move.to}"]`);
+            if (!targetSquare) {
+              console.error(`Không tìm thấy ô đích với id: ${move.to}`);
+              return;
+            }
+            
+            if (move.captured) {
+              targetSquare.classList.add('possible-capture');
+            } else {
+              targetSquare.classList.add('possible-move');
+            }
+          } catch (error) {
+            console.error(`Lỗi khi hiển thị nước đi đến ${move.to}:`, error);
+          }
+        });
+      } catch (error) {
+        console.error('Lỗi khi hiển thị các nước đi hợp lệ:', error);
+      }
+    }
+    
+    // Hàm xóa tất cả các highlight
+    function clearHighlights() {
+      document.querySelectorAll('.square').forEach(square => {
+        square.classList.remove('highlight', 'possible-move', 'possible-capture');
+      });
+    }
+    
+    // Hàm thực hiện nước đi
+    function makeMove(move) {
+      try {
+        if (!game) {
+          console.error('Không thể thực hiện nước đi: game chưa được khởi tạo');
+          return;
+        }
+        
+        const result = game.move(move);
+        
+        // Nếu nước đi hợp lệ
+        if (result) {
+          try {
+            // Cập nhật trạng thái game trên Firebase
+            const gameStateRef = db.ref('rooms/' + currentRoomId + '/gameState');
+            gameStateRef.set({
+              fen: game.fen(),
+              turn: game.turn(),
+              lastMove: move
+            });
+          } catch (error) {
+            console.error('Lỗi khi cập nhật trạng thái game lên Firebase:', error);
+          }
+          
+          selectedSquare = null;
+          clearHighlights();
+        } else {
+          // Nếu nước đi không hợp lệ, bỏ chọn ô hiện tại
+          selectedSquare = null;
+          clearHighlights();
+        }
+      } catch (error) {
+        console.error('Lỗi khi thực hiện nước đi:', error);
+        selectedSquare = null;
+        clearHighlights();
+      }
+    }
+    
+    // Hàm hiển thị modal chọn quân phong cấp
+    function showPromotionModal() {
+      try {
+        const modal = document.getElementById('promotion-modal');
+        if (!modal) {
+          console.error('Không tìm thấy modal phong cấp');
+          return;
+        }
+        
+        modal.style.display = 'flex';
+        
+        // Thêm sự kiện click cho các quân cờ phong cấp
+        const pieces = document.querySelectorAll('.piece');
+        if (!pieces || pieces.length === 0) {
+          console.error('Không tìm thấy các quân cờ phong cấp');
+          return;
+        }
+        
+        pieces.forEach(piece => {
+          try {
+            piece.onclick = function() {
+              try {
+                const pieceType = this.getAttribute('data-piece');
+                if (!pieceType) {
+                  console.error('Không tìm thấy thuộc tính data-piece');
+                  return;
+                }
+                
+                if (!promotionMove) {
+                  console.error('Không có thông tin về nước đi phong cấp');
+                  return;
+                }
+                
+                promotionMove.promotion = pieceType;
+                makeMove(promotionMove);
+                modal.style.display = 'none';
+              } catch (error) {
+                console.error('Lỗi khi xử lý click vào quân cờ phong cấp:', error);
+                modal.style.display = 'none';
+              }
+            };
+          } catch (error) {
+            console.error('Lỗi khi thêm sự kiện click cho quân cờ phong cấp:', error);
+          }
+        });
+      } catch (error) {
+        console.error('Lỗi khi hiển thị modal phong cấp:', error);
+      }
+    }
+    
+    // Lấy ký hiệu Unicode cho quân cờ
+    function getPieceSymbol(type, color) {
+      try {
+        if (!type || !color) {
+          console.error('Thiếu thông tin loại quân cờ hoặc màu sắc');
+          return '';
+        }
+        
+        const symbols = {
+          'w': {
+            'p': '♙', 'r': '♖', 'n': '♘', 'b': '♗', 'q': '♕', 'k': '♔'
+          },
+          'b': {
+            'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚'
+          }
+        };
+        
+        if (!symbols[color]) {
+          console.error(`Màu sắc không hợp lệ: ${color}`);
+          return '';
+        }
+        
+        if (!symbols[color][type]) {
+          console.error(`Loại quân cờ không hợp lệ: ${type}`);
+          return '';
+        }
+        
+        return symbols[color][type];
+      } catch (error) {
+        console.error('Lỗi khi lấy ký hiệu quân cờ:', error);
+        return '';
+      }
+    }
+    
+    // Cập nhật trạng thái của game
+    function updateGameStatus() {
+      const statusElement = document.getElementById('status');
+      
+      let status = '';
+      
+      if (game.in_checkmate()) {
+        status = game.turn() === 'w' ? 'Đen thắng - Trắng bị chiếu hết' : 'Trắng thắng - Đen bị chiếu hết';
+      } else if (game.in_draw()) {
+        status = 'Hòa';
+        if (game.in_stalemate()) {
+          status += ' - Bế tắc';
+        } else if (game.in_threefold_repetition()) {
+          status += ' - Lặp lại vị trí 3 lần';
+        } else if (game.insufficient_material()) {
+          status += ' - Không đủ quân để chiếu hết';
+        } else {
+          status += ' - Luật 50 nước đi';
+        }
+      } else {
+        status = 'Lượt của: ' + (game.turn() === 'w' ? 'Trắng' : 'Đen');
+        
+        if (game.in_check()) {
+          status += ' (Đang bị chiếu)';
+        }
+      }
+      
+      statusElement.textContent = status;
+      
+      // Cập nhật trạng thái game trong phòng
+      document.getElementById('gameStatus').textContent = status;
+    }
+    
+    // Đánh dấu vua đang bị chiếu
+    function highlightCheck() {
+      try {
+        if (!game) {
+          console.error('Đối tượng game chưa được khởi tạo trong highlightCheck');
+          return;
+        }
+        
+        if (game.in_check()) {
+          const pieces = game.board();
+          
+          for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+              const piece = pieces[row][col];
+              if (piece && piece.type === 'k' && piece.color === game.turn()) {
+                const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+                const ranks = ['8', '7', '6', '5', '4', '3', '2', '1'];
+                
+                const squareId = files[col] + ranks[row];
+                const square = document.querySelector(`[data-square="${squareId}"]`);
+                if (square) {
+                  square.classList.add('check');
+                } else {
+                  console.warn('Không tìm thấy ô cờ cho vua tại', squareId);
+                }
+                break;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi khi đánh dấu vua bị chiếu:', error);
+      }
+    }
+    
+    // Hiển thị thông báo trong phần game
+    function showMessage(message, type = 'info') {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.style.color = type === 'error' ? '#dc3545' : '#28a745';
+    }
+    
+    // Hàm kiểm tra và xóa phòng nếu không còn người chơi
+    function checkAndRemoveEmptyRoom(roomRef) {
+      roomRef.once('value', snapshot => {
+        if (!snapshot.exists()) return;
+        
+        const roomData = snapshot.val();
+        const players = roomData.players || {};
+        
+        // Nếu không còn người chơi nào, xóa phòng
+        if (Object.keys(players).length === 0) {
+          console.log('Không còn người chơi nào, xóa phòng');
+          roomRef.remove();
+        }
+      });
+    }
+    
+    // Hàm kiểm tra và hiển thị bàn cờ
+    function ensureBoardIsVisible() {
+      console.log('Đảm bảo bàn cờ hiển thị...');
+      
+      // Kiểm tra xem bàn cờ đã được hiển thị chưa
+      const boardElement = document.getElementById('board');
+      const squareElements = document.querySelectorAll('.square');
+      
+      console.log('Số ô cờ hiện tại:', squareElements.length);
+      
+      // Nếu không có ô cờ hoặc số ô cờ không đủ 64 ô
+      if (!squareElements.length || squareElements.length < 64) {
+        console.log('Khởi tạo bàn cờ vì không tìm thấy đủ ô cờ');
+        
+        // Xóa bàn cờ cũ nếu có
+        if (boardElement) {
+          boardElement.innerHTML = '';
+        }
+        
+        // Khởi tạo lại bàn cờ
+        initializeBoard();
+      }
+      
+      console.log('Cập nhật hiển thị bàn cờ');
+      updateBoard();
+    }
+    
+    // Xử lý khi người dùng đóng tab hoặc rời trang
+    window.addEventListener('beforeunload', () => {
+      // Rời phòng khi đóng tab
+      leaveRoom();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Uno 4 người online Firebase Demo</title>
+  <style>
+    /* CSS tương tự như trên */
+    body {
+      font-family: Arial, sans-serif;
+      background: #146c43;
+      color: #fff;
+      text-align: center;
+      margin: 0; padding: 20px;
+    }
+    .room-container {
+      max-width: 500px;
+      margin: 0 auto 30px;
+      background: #1e7e34;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group input {
+      padding: 10px;
+      width: 70%;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+    .room-list {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #1e7e34;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .room-item {
+      background: #28a745;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .room-item:hover {
+      background: #2dbc4e;
+    }
+    .player-list {
+      background: #28a745;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 15px auto;
+      max-width: 400px;
+    }
+    .player-item {
+      padding: 5px;
+      margin: 5px 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #1e7e34;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    .player-hand {
+      border: 1px solid #ccc;
+      background: #1e7e34;
+      padding: 10px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 8px;
+    }
+    .player-hand h2 {
+      margin-top: 0;
+    }
+    .cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card {
+      width: 60px;
+      height: 90px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 90px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 0 5px black;
+    }
+    .red { background: #dc3545; }
+    .yellow { background: #ffc107; color: black; }
+    .green { background: #28a745; }
+    .blue { background: #007bff; }
+    .wild { background: black; }
+    .discard-pile {
+      margin: 20px auto;
+      width: 80px;
+      height: 120px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px #000;
+      font-size: 22px;
+      line-height: 120px;
+      font-weight: bold;
+      user-select: none;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 20px;
+      height: 24px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    /* Thêm CSS để hiển thị người chơi hiện tại rõ ràng hơn */
+    .current-player {
+      background: #ffc107;
+      border-left: 4px solid #fd7e14;
+      font-weight: bold;
+    }
+    .player-hand.current {
+      border: 2px solid #ffc107;
+      box-shadow: 0 0 10px #ffc107;
+    }
+    .player-info {
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    #playerInfo {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-bottom: 15px;
+      max-width: 800px;
+      margin: 0 auto 15px;
+    }
+    /* Hiển thị rõ ràng người chơi hiện tại */
+    .player-hand h2 {
+      padding: 5px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    
+    /* CSS cho modal chọn người chơi và chọn màu */
+    .player-selection-options {
+      margin: 15px 0;
+    }
+    .player-option {
+      background: #28a745;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .player-option:hover {
+      background: #2dbc4e;
+    }
+    .color-options {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .color-option {
+      width: 80px;
+      height: 40px;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+    .color-option.red { background: #dc3545; }
+    .color-option.blue { background: #007bff; }
+    .color-option.green { background: #28a745; }
+    .color-option.yellow { background: #ffc107; color: black; }
+    /* Chat Box Styles */
+    .chat-box {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: 300px;
+      height: 300px;
+      background: #1e7e34;
+      border: 2px solid #28a745;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    
+    .chat-header {
+      background: #28a745;
+      padding: 8px;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .chat-header h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .chat-toggle {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(30, 126, 52, 0.8);
+    }
+    
+    .chat-message {
+      padding: 6px 10px;
+      border-radius: 12px;
+      max-width: 85%;
+      word-break: break-word;
+    }
+    
+    .chat-message.sent {
+      align-self: flex-end;
+      background: #007bff;
+    }
+    
+    .chat-message.received {
+      align-self: flex-start;
+      background: #28a745;
+    }
+    
+    .message-sender {
+      font-size: 10px;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    
+    .chat-input-container {
+      display: flex;
+      padding: 8px;
+      border-top: 1px solid #28a745;
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #28a745;
+      background: #146c43;
+      color: white;
+    }
+    
+    .chat-send-btn {
+      margin-left: 8px;
+      padding: 8px 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .chat-send-btn:hover {
+      background: #0069d9;
+    }
+    
+    .chat-box.minimized .chat-messages,
+    .chat-box.minimized .chat-input-container {
+      display: none;
+    }
+    
+    .chat-box.minimized {
+      height: auto;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Uno 4 người online với Firebase</h1>
+  
+  <!-- Thông tin người dùng -->
+  <div id="userInfo" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 50px; display: flex; align-items: center; gap: 10px;">
+    <div id="userAvatar" style="width: 40px; height: 40px; border-radius: 50%; background: #28a745; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold;">A</div>
+    <div style="text-align: left;">
+      <div id="displayName" style="font-weight: bold; font-size: 16px;">Người dùng</div>
+      <div id="userPoints" style="font-size: 14px; color: rgba(255,255,255,0.8);">0 điểm</div>
+    </div>
+    <button id="backToLobbyBtn" style="margin-left: 10px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Về trang chủ</button>
+  </div>
+  
+  <!-- Phần tham gia phòng -->
+  <div id="roomSection" class="room-container">
+    <h2>Tham gia phòng</h2>
+    <div class="input-group">
+      <input type="text" id="roomNameInput" placeholder="Nhập tên phòng..." />
+    </div>
+    <div>
+      <button id="joinRoomBtn">Tham gia phòng</button>
+    </div>
+    <div id="roomMessage" style="margin-top: 10px; font-weight: bold;"></div>
+  </div>
+  
+  <!-- Danh sách phòng -->
+  <div id="roomListSection" class="room-list">
+    <h2>Danh sách phòng</h2>
+    <div id="roomList">Đang tải danh sách phòng...</div>
+  </div>
+  
+  <!-- Chat Box -->
+  <div id="chatBox" class="chat-box" style="display: none;">
+    <div class="chat-header">
+      <h3>Chat Phòng</h3>
+      <button id="chatToggleBtn" class="chat-toggle">_</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-container">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Nhập tin nhắn..." />
+      <button id="chatSendBtn" class="chat-send-btn">Gửi</button>
+    </div>
+  </div>
+
+  <!-- Sảnh chờ (ẩn ban đầu) -->
+  <div id="lobbySection" style="display: none;">
+    <h2 id="lobbyRoomName">Phòng chờ: </h2>
+    
+    <!-- Danh sách người chơi trong phòng chờ -->
+    <div class="player-list">
+      <h3>Người chơi trong phòng</h3>
+      <div id="lobbyPlayerList"></div>
+    </div>
+    
+    <div style="margin: 10px 0;">
+      <button id="startGameBtnLobby" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; display: none;">Bắt đầu phòng</button>
+      <button id="leaveRoomBtnLobby" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Rời phòng</button>
+    </div>
+    <div id="lobbyMessage" style="margin: 15px 0; font-size: 18px; font-weight: bold;"></div>
+  </div>
+  
+  <!-- Phần game (ẩn ban đầu) -->
+  <div id="gameSection" style="display: none;">
+    <h2 id="currentRoomName">Phòng: </h2>
+    
+    <!-- Danh sách người chơi trong phòng -->
+    <div class="player-list">
+      <h3>Người chơi trong phòng</h3>
+      <div id="roomPlayerList"></div>
+    </div>
+    
+    <!-- Thông tin người chơi -->
+    <div id="playerInfo"></div>
+    
+    <div>
+      <div class="discard-pile" id="discardPile">?</div>
+    </div>
+
+    <div id="players"></div>
+
+    <div style="margin: 10px 0;">
+      <button id="drawCardBtn" disabled style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Rút bài</button>
+      <button id="nextTurnBtn" disabled style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Chuyển lượt</button>
+      <button id="startGameBtn" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Bắt đầu phòng</button>
+      <button id="leaveRoomBtn" style="margin: 0 5px; padding: 10px 15px; font-size: 16px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Rời phòng</button>
+    </div>
+    <div id="message" style="margin: 15px 0; font-size: 18px; font-weight: bold;"></div>
+  </div>
+  
+  <!-- Modal chọn người chơi -->
+  <div id="playerSelectionModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2 id="playerSelectionTitle">Chọn người chơi</h2>
+      <div id="playerSelectionOptions" class="player-selection-options"></div>
+      <div id="colorSelectionOptions" class="color-selection-options" style="display: none;">
+        <h3>Chọn màu:</h3>
+        <div class="color-options">
+          <button class="color-option red" data-color="red">Đỏ</button>
+          <button class="color-option blue" data-color="blue">Xanh dương</button>
+          <button class="color-option green" data-color="green">Xanh lá</button>
+          <button class="color-option yellow" data-color="yellow">Vàng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal chọn màu -->
+  <div id="colorSelectionModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Chọn màu</h2>
+      <div class="color-options">
+        <button class="color-option red" data-color="red">Đỏ</button>
+        <button class="color-option blue" data-color="blue">Xanh dương</button>
+        <button class="color-option green" data-color="green">Xanh lá</button>
+        <button class="color-option yellow" data-color="yellow">Vàng</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Cấu hình Firebase (thay bằng config của bạn)
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgITWCnQO7pW2-VOAgpKFsK6GN8H037HM",
+        authDomain: "masoi-92684.firebaseapp.com",
+        databaseURL: "https://masoi-92684-default-rtdb.firebaseio.com",
+        projectId: "masoi-92684",
+        storageBucket: "masoi-92684.firebasestorage.app",
+        messagingSenderId: "1030518945375",
+        appId: "1:1030518945375:web:a531a0233c0dcbde120dea",
+        measurementId: "G-QNS4GVQ178"
+    };
+    
+    /* 
+    LƯU Ý QUAN TRỌNG: Để ứng dụng hoạt động đúng, bạn cần cấu hình quy tắc bảo mật Firebase như sau:
+    
+    Đăng nhập vào Firebase Console: https://console.firebase.google.com/
+    Chọn dự án của bạn
+    Chọn "Realtime Database" từ menu bên trái
+    Chọn tab "Rules"
+    Cập nhật quy tắc như sau:
+    
+    {
+      "rules": {
+        ".read": true,
+        ".write": true,
+        "rooms": {
+          ".read": true,
+          ".write": true
+        },
+        "games": {
+          ".read": true,
+          ".write": true
+        }
+    }
+    
+    Nhấn "Publish" để lưu quy tắc
+    */
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    // Biến lưu trữ thông tin phòng và người chơi
+    let currentRoomId = null;
+    let playerId = null;
+    let playerName = '';
+    let currentRoomName = '';
+    let currentUser = null;
+    let userPoints = 0;
+    let isSpectator = false;
+    
+    // Tham chiếu đến danh sách phòng - sử dụng quyền đọc/ghi công khai
+    const roomsRef = db.ref('rooms');
+    
+    // Kiểm tra thông tin người dùng từ localStorage khi trang web được tải
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Lấy thông tin người dùng từ localStorage
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      
+      if (userInfo) {
+        // Nếu có thông tin người dùng, cập nhật biến và hiển thị
+        playerName = userInfo.displayName || 'Người dùng';
+        currentUser = userInfo;
+        userPoints = userInfo.points || 0;
+        
+        // Cập nhật giao diện người dùng
+        updateUserInterface();
+        
+        // Kiểm tra xem có phòng được chọn từ trang chủ không
+        const selectedRoomId = localStorage.getItem('selectedRoomId');
+        const isSpectatorMode = localStorage.getItem('isSpectator') === 'true';
+        
+        if (selectedRoomId) {
+          // Lấy thông tin phòng
+          const roomSnapshot = await roomsRef.child(selectedRoomId).once('value');
+          
+          if (roomSnapshot.exists()) {
+            const roomData = roomSnapshot.val();
+            
+            // Xóa thông tin phòng đã chọn từ localStorage để tránh tự động tham gia lại khi tải lại trang
+            localStorage.removeItem('selectedRoomId');
+            
+            if (isSpectatorMode) {
+              // Xóa trạng thái người xem
+              localStorage.removeItem('isSpectator');
+              // Tham gia phòng với tư cách người xem
+              spectateRoom(selectedRoomId, roomData.name);
+            } else {
+              // Tham gia phòng với tư cách người chơi
+              joinRoom(selectedRoomId, roomData.name);
+            }
+          } else {
+            // Nếu phòng không tồn tại, tải danh sách phòng
+            loadRoomList();
+          }
+        } else {
+          // Tải danh sách phòng
+          loadRoomList();
+        }
+      } else {
+        // Nếu không có thông tin người dùng, chuyển về trang chủ
+        window.location.href = 'trangchu.html';
+      }
+    });
+    
+    // Cập nhật giao diện người dùng
+    function updateUserInterface() {
+      // Cập nhật tên hiển thị
+      document.getElementById('displayName').textContent = playerName;
+      
+      // Cập nhật điểm
+      document.getElementById('userPoints').textContent = `${userPoints} điểm`;
+      
+      // Cập nhật avatar (chữ cái đầu tiên của tên)
+      const avatarElement = document.getElementById('userAvatar');
+      avatarElement.textContent = playerName.charAt(0).toUpperCase();
+      
+      // Nếu người dùng đăng nhập bằng Google, hiển thị avatar từ Google
+      if (currentUser && currentUser.photoURL) {
+        avatarElement.innerHTML = `<img src="${currentUser.photoURL}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+      }
+    }
+    
+    // Cập nhật điểm cho người chơi
+    function updatePlayerPoints(points, reason) {
+      // Cập nhật điểm trong biến local
+      userPoints += points;
+      
+      // Cập nhật giao diện
+      document.getElementById('userPoints').textContent = `${userPoints} điểm`;
+      
+      // Hiển thị thông báo
+      const message = document.getElementById('message');
+      message.textContent = `${reason}: +${points} điểm`;
+      
+      // Nếu người dùng đã đăng nhập (không phải khách), lưu điểm vào Firebase
+      if (currentUser && currentUser.uid) {
+        // Tham chiếu đến node users/[uid]
+        const userRef = db.ref('users/' + currentUser.uid);
+        
+        // Cập nhật điểm
+        userRef.transaction((userData) => {
+          if (userData === null) {
+            return {
+              displayName: playerName,
+              points: points,
+              lastUpdated: firebase.database.ServerValue.TIMESTAMP
+            };
+          } else {
+            userData.points = (userData.points || 0) + points;
+            userData.lastUpdated = firebase.database.ServerValue.TIMESTAMP;
+            return userData;
+          }
+        }, (error, committed, snapshot) => {
+          if (error) {
+            console.error('Lỗi khi cập nhật điểm:', error);
+          } else if (committed) {
+            console.log('Đã cập nhật điểm thành công');
+            
+            // Cập nhật thông tin người dùng trong localStorage
+            const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+            userInfo.points = userPoints;
+            localStorage.setItem('userInfo', JSON.stringify(userInfo));
+          }
+        });
+      } else {
+        // Người dùng chơi khách, chỉ lưu điểm vào localStorage
+        const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+        userInfo.points = userPoints;
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      }
+    }
+    
+    // Xử lý khi người dùng đóng tab hoặc thoát trình duyệt
+    window.addEventListener('beforeunload', (event) => {
+      // Nếu người dùng đang trong phòng, tự động rời phòng
+      if (currentRoomId && playerName) {
+        // Sử dụng Firebase REST API để xóa người chơi khỏi phòng
+        // Tạo URL để xóa người chơi khỏi phòng
+        const url = `${firebaseConfig.databaseURL}/rooms/${currentRoomId}/players/${playerName}.json`;
+        
+        // Sử dụng navigator.sendBeacon để gửi yêu cầu xóa trước khi trang đóng
+        navigator.sendBeacon(url, JSON.stringify(null));
+        
+        // Thêm thông tin về việc rời phòng vào localStorage để xử lý khi người dùng quay lại
+        localStorage.setItem('leftRoom', JSON.stringify({
+          roomId: currentRoomId,
+          playerName: playerName,
+          wasHost: document.getElementById('startGameBtn').style.display !== 'none',
+          timestamp: Date.now()
+        }));
+      }
+    });
+    
+    // Kiểm tra xem người dùng đã rời phòng đột ngột trước đó chưa
+    function checkPreviousSession() {
+      const leftRoomData = localStorage.getItem('leftRoom');
+      if (leftRoomData) {
+        try {
+          const data = JSON.parse(leftRoomData);
+          // Nếu thời gian rời phòng trong vòng 1 phút, xử lý dọn dẹp
+          if (Date.now() - data.timestamp < 60000) {
+            console.log('Phát hiện phiên trước đã rời phòng đột ngột:', data);
+            
+            // Xử lý chuyển quyền chủ phòng hoặc xóa phòng nếu là chủ phòng
+            if (data.wasHost) {
+              const roomRef = roomsRef.child(data.roomId);
+              roomRef.once('value', snapshot => {
+                if (snapshot.exists()) {
+                  const roomData = snapshot.val();
+                  const players = roomData.players || {};
+                  const remainingPlayers = Object.keys(players).filter(name => name !== data.playerName);
+                  
+                  if (remainingPlayers.length === 0) {
+                    // Xóa phòng nếu không còn người chơi nào
+                    roomRef.remove();
+                    db.ref('games/' + data.roomId).remove();
+                    console.log('Đã xóa phòng trống sau khi chủ phòng rời đi');
+                  } else if (roomData.host === data.playerName) {
+                    // Chuyển quyền chủ phòng cho người chơi đầu tiên còn lại
+                    roomRef.update({ host: remainingPlayers[0] });
+                    console.log(`Đã chuyển quyền chủ phòng cho ${remainingPlayers[0]}`);
+                  }
+                }
+              });
+            }
+          }
+          // Xóa dữ liệu phiên cũ
+          localStorage.removeItem('leftRoom');
+        } catch (e) {
+          console.error('Lỗi khi xử lý dữ liệu phiên trước:', e);
+          localStorage.removeItem('leftRoom');
+        }
+      }
+    }
+    
+    // Kiểm tra phiên trước khi trang được tải
+    checkPreviousSession();
+    
+    // Tải danh sách phòng từ Firebase
+    function loadRoomList() {
+      const roomListDiv = document.getElementById('roomList');
+      
+      // Lắng nghe sự thay đổi của danh sách phòng
+      roomsRef.on('value', snapshot => {
+        roomListDiv.innerHTML = '';
+        
+        if (!snapshot.exists()) {
+          roomListDiv.innerHTML = '<p>Chưa có phòng nào được tạo.</p>';
+          return;
+        }
+        
+        snapshot.forEach(childSnapshot => {
+          const roomData = childSnapshot.val();
+          const roomId = childSnapshot.key;
+          
+          const roomItem = document.createElement('div');
+          roomItem.className = 'room-item';
+          
+          // Đếm số người chơi trong phòng
+          const playerCount = roomData.players ? Object.keys(roomData.players).length : 0;
+          
+          roomItem.innerHTML = `
+            <h3>${roomData.name}</h3>
+            <p>Số người chơi: ${playerCount}</p>
+            <p>Chủ phòng: ${roomData.host || 'Không xác định'}</p>
+          `;
+          
+          roomItem.addEventListener('click', () => {
+            joinRoom(roomId, roomData.name);
+          });
+          
+          roomListDiv.appendChild(roomItem);
+        });
+      }, error => {
+        console.error('Lỗi tải danh sách phòng:', error);
+        roomListDiv.innerHTML = '<p>Lỗi khi tải danh sách phòng. Vui lòng thử lại sau.</p>';
+      });
+    }
+
+    // Tham chiếu đến phòng hiện tại (sẽ được cập nhật khi tạo/tham gia phòng)
+    let gameRef = null;
+
+    // Hàm tạo bộ bài, trộn bài (giống trên)
+    const COLORS = ['red', 'yellow', 'green', 'blue'];
+    const SPECIAL_CARDS = ['skip', 'reverse', '+2'];
+    const WILD_CARDS = ['wild', '+4'];
+
+    function createDeck() {
+      let deck = [];
+      for (let color of COLORS) {
+        deck.push({color: color, value: '0'});
+        for (let num=1; num<=9; num++) {
+          deck.push({color: color, value: num.toString()});
+          deck.push({color: color, value: num.toString()});
+        }
+        for (let sp of SPECIAL_CARDS) {
+          deck.push({color: color, value: sp});
+          deck.push({color: color, value: sp});
+        }
+      }
+      for (let i=0; i<4; i++) {
+        deck.push({color: 'wild', value: 'wild'});
+        deck.push({color: 'wild', value: '+4'});
+      }
+      return deck;
+    }
+    function shuffle(array) {
+      for (let i = array.length -1; i>0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Giao diện
+    const playersDiv = document.getElementById('players');
+    const discardDiv = document.getElementById('discardPile');
+    const messageDiv = document.getElementById('message');
+    const drawCardBtn = document.getElementById('drawCardBtn');
+    const nextTurnBtn = document.getElementById('nextTurnBtn');
+
+    // Tạo thẻ bài
+    function createCardElement(card, clickable = false) {
+      const div = document.createElement('div');
+      div.className = 'card ' + card.color;
+      div.textContent = card.value.toUpperCase();
+      if (clickable) {
+        div.style.cursor = 'pointer';
+      } else {
+        div.style.cursor = 'default';
+      }
+      return div;
+    }
+
+    // Kiểm tra đánh bài hợp lệ
+    function canPlay(card, topCard) {
+      // Kiểm tra xem card và topCard có tồn tại không
+      if (!card || !topCard) {
+        console.log('Lá bài không hợp lệ trong canPlay');
+        return false;
+      }
+      
+      // Lá wild luôn có thể đánh
+      if (card.color === 'wild') {
+        // Lá wild (đổi màu) hoặc +4 (đổi màu và người kế tiếp rút 4 lá) luôn có thể đánh
+        return true;
+      }
+      
+      // Kiểm tra màu giống nhau
+      if (card.color === topCard.color) {
+        // Nếu cùng màu, luôn có thể đánh
+        return true;
+      }
+      
+      // Kiểm tra số/ký hiệu giống nhau
+      if (card.value === topCard.value) {
+        // Nếu cùng số hoặc cùng ký hiệu đặc biệt (skip, reverse, +2), có thể đánh
+        return true;
+      }
+      
+      // Nếu không thỏa mãn các điều kiện trên, không thể đánh
+      return false;
+    }
+
+    // Render giao diện dựa trên trạng thái game từ Firebase
+    function render(state) {
+      if (!state || !state.players || !state.discardPile) return;
+      const {players, discardPile, currentPlayer, message, playerNames} = state;
+      
+      // Hiển thị thông tin người chơi
+      const playerInfoDiv = document.getElementById('playerInfo');
+      playerInfoDiv.innerHTML = '';
+      
+      if (playerNames) {
+        playerNames.forEach((name, index) => {
+          const playerDiv = document.createElement('div');
+          playerDiv.className = 'player-info';
+          
+          // Đánh dấu người chơi hiện tại
+          if (index === currentPlayer) {
+            playerDiv.classList.add('current-player');
+          }
+          
+          // Hiển thị tên và số lá bài
+          const cardCount = players[index] ? players[index].length : 0;
+          playerDiv.innerHTML = `<span>${name}${index == playerId ? ' (Bạn)' : ''}</span> <span>${cardCount} lá</span>`;
+          
+          playerInfoDiv.appendChild(playerDiv);
+        });
+      }
+      
+      playersDiv.innerHTML = '';
+      // Chỉ hiển thị người chơi có trong phòng
+      if (playerNames) {
+        for (let i=0; i<4; i++) {
+          // Chỉ hiển thị người chơi có trong danh sách
+          if (!playerNames[i]) continue;
+          
+          const phand = document.createElement('div');
+          phand.className = 'player-hand';
+          
+          // Đánh dấu người chơi hiện tại
+          if (i === currentPlayer) {
+            phand.classList.add('current');
+          }
+
+          const title = document.createElement('h2');
+          // Hiển thị tên người chơi thay vì chỉ số
+          const playerDisplayName = playerNames[i] ? playerNames[i] : `Người chơi ${i+1}`;
+          title.textContent = playerDisplayName + (i == currentPlayer ? ' (Lượt hiện tại)' : '');
+          if (i == playerId) {
+            title.textContent += ' (Bạn)';
+          }
+          phand.appendChild(title);
+
+          const cardsDiv = document.createElement('div');
+          cardsDiv.className = 'cards';
+
+          // Kiểm tra xem người chơi có tồn tại không
+          if (!players[i]) continue;
+
+          // Hiện bài của người chơi hiện tại, ẩn bài người khác (hiện số lượng bài)
+          if (i == playerId) {
+            players[i].forEach((card, idx) => {
+              let clickable = (i === currentPlayer) && canPlay(card, discardPile[discardPile.length-1]);
+              const cardEl = createCardElement(card, clickable);
+              if (clickable) {
+                cardEl.addEventListener('click', () => {
+                  playCard(idx);
+                });
+              }
+              cardsDiv.appendChild(cardEl);
+            });
+          } else if (players[i]) {
+            // Hiện số lá bài người khác có
+            const count = players[i].length;
+            for (let c=0; c<count; c++) {
+              let cardBack = document.createElement('div');
+              cardBack.className = 'card wild';
+              cardBack.textContent = '?';
+              cardsDiv.appendChild(cardBack);
+            }
+          }
+
+          phand.appendChild(cardsDiv);
+          playersDiv.appendChild(phand);
+        }
+      }
+
+      // Bài bỏ
+      if (discardPile.length > 0) {
+        const topCard = discardPile[discardPile.length-1];
+        discardDiv.textContent = topCard.value.toUpperCase();
+        discardDiv.className = 'discard-pile ' + topCard.color;
+      } else {
+        discardDiv.textContent = '?';
+      }
+
+      messageDiv.textContent = message || '';
+      
+      // Nút chỉ bật khi lượt người chơi này
+      if (parseInt(playerId) === currentPlayer) {
+        drawCardBtn.disabled = false;
+        nextTurnBtn.disabled = false;
+      } else {
+        drawCardBtn.disabled = true;
+        nextTurnBtn.disabled = true;
+      }
+    }
+
+    // Đọc trạng thái game realtime từ Firebase
+    function listenToGameChanges() {
+      if (gameRef) {
+        gameRef.on('value', snapshot => {
+          const state = snapshot.val();
+          if (!state) {
+            console.log('Trạng thái game không hợp lệ trong listenToGameChanges');
+            return;
+          }
+          
+          try {
+            render(state);
+          } catch (error) {
+            console.error('Lỗi trong listenToGameChanges:', error);
+          }
+        });
+      }
+    }
+
+    // Hàm cập nhật trạng thái game lên Firebase
+    async function updateGameState(updateFn) {
+      try {
+        if (!gameRef) {
+          console.log('gameRef không tồn tại trong updateGameState');
+          return null;
+        }
+        
+        const snapshot = await gameRef.get();
+        let state = snapshot.val() || {};
+
+        // Nếu game chưa tạo hoặc chưa bắt đầu, khởi tạo
+        if (!state.started) {
+          console.log('Khởi tạo trạng thái game mới');
+          const deck = createDeck();
+          shuffle(deck);
+          let playersCards = [[],[],[],[]]; 
+          for (let i=0; i<4; i++) {
+            for (let j=0; j<7; j++) {
+              playersCards[i].push(deck.pop());
+            }
+          }
+          let discardPile = [];
+          while(true) {
+            let c = deck.pop();
+            if (c.color !== 'wild') {
+              discardPile.push(c);
+              break;
+            } else {
+              deck.unshift(c);
+              shuffle(deck);
+            }
+          }
+          state = {
+            deck,
+            players: playersCards,
+            discardPile,
+            currentPlayer: 0,
+            direction: 1,
+            skipNext: false,
+            skipPlayer: null,
+            skipPlayerPermanent: false,
+            nextSkipPlayer: null,
+            message: 'Phòng đã sẵn sàng! Nhấn Bắt đầu phòng để chơi.',
+            started: false,
+            playerNames: state && state.playerNames ? state.playerNames : []
+          };
+        }
+
+        // Kiểm tra tính hợp lệ của state trước khi cập nhật
+        if (!state.deck || !Array.isArray(state.deck)) {
+          console.log('Bộ bài không hợp lệ trong updateGameState, tạo mới');
+          state.deck = createDeck();
+          shuffle(state.deck);
+        }
+        
+        if (!state.discardPile || !Array.isArray(state.discardPile)) {
+          console.log('Chồng bài bỏ không hợp lệ trong updateGameState, tạo mới');
+          state.discardPile = [];
+          // Lấy một lá từ bộ bài làm lá đầu tiên
+          if (state.deck.length > 0) {
+            let c = state.deck.pop();
+            if (c.color !== 'wild') {
+              state.discardPile.push(c);
+            } else {
+              state.deck.unshift(c);
+              shuffle(state.deck);
+              state.discardPile.push(state.deck.pop());
+            }
+          }
+        }
+        
+        if (!state.players || !Array.isArray(state.players)) {
+          console.log('Danh sách người chơi không hợp lệ trong updateGameState, tạo mới');
+          state.players = [[],[],[],[]]; 
+        }
+        
+        if (state.currentPlayer === undefined || state.currentPlayer === null) {
+          console.log('Người chơi hiện tại không hợp lệ trong updateGameState, đặt lại');
+          state.currentPlayer = 0;
+        }
+        
+        if (state.direction === undefined || state.direction === null) {
+          console.log('Hướng chơi không hợp lệ trong updateGameState, đặt lại');
+          state.direction = 1;
+        }
+        
+        if (!state.playerNames || !Array.isArray(state.playerNames)) {
+          console.log('Danh sách tên người chơi không hợp lệ trong updateGameState, đặt lại');
+          state.playerNames = [];
+        }
+
+        // Cập nhật trạng thái game qua callback
+        state = updateFn(state);
+        
+        // Kiểm tra lại tính hợp lệ của state sau khi cập nhật
+        if (!state) {
+          console.log('State không hợp lệ sau khi cập nhật trong updateGameState');
+          return null;
+        }
+
+      try {
+        await gameRef.set(state);
+        
+        // Trả về trạng thái đã cập nhật
+        return state;
+      } catch (error) {
+        console.error('Lỗi khi lưu trạng thái game:', error);
+        return null;
+      }
+    } catch (error) {
+      console.error('Lỗi trong updateGameState:', error);
+      return null;
+    }
+  }
+
+    // Hàm đánh bài
+    function playCard(cardIndex) {
+      // Nếu đang chờ chọn người chơi cho lá cấm lượt hoặc thêm bài, không cho đánh bài
+      if (document.getElementById('playerSelectionModal').style.display === 'block' ||
+          document.getElementById('colorSelectionModal').style.display === 'block') {
+        return;
+      }
+      
+      updateGameState(state => {
+        // Kiểm tra xem trạng thái game có hợp lệ không
+        if (!state) {
+          console.log('Trạng thái game không hợp lệ trong playCard');
+          return state;
+        }
+        
+        // Nếu người chơi hiện tại đã bị bỏ qua lượt trước đó, hủy bỏ trạng thái này
+        // vì họ đã có thể đánh bài
+        if (state.skipPlayer === state.currentPlayer) {
+          state.skipPlayerPermanent = false;
+          state.skipPlayer = null;
+        }
+        
+        // Kiểm tra xem state.players có tồn tại không
+        if (!state.players || !Array.isArray(state.players) || 
+            !state.players[state.currentPlayer] || 
+            !Array.isArray(state.players[state.currentPlayer]) || 
+            cardIndex < 0 || cardIndex >= state.players[state.currentPlayer].length) {
+          console.log('Danh sách bài của người chơi không hợp lệ trong playCard');
+          return state;
+        }
+        
+        // Kiểm tra xem state.discardPile có tồn tại không
+        if (!state.discardPile || !Array.isArray(state.discardPile) || state.discardPile.length === 0) {
+          console.log('Chồng bài bỏ không hợp lệ trong playCard');
+          return state;
+        }
+        
+        const card = state.players[state.currentPlayer][cardIndex];
+        const topCard = state.discardPile[state.discardPile.length - 1];
+
+        if (!canPlay(card, topCard)) {
+          state.message = 'Bạn không thể đánh lá bài này!';
+          return state;
+        }
+
+        // Đánh bài
+        state.players[state.currentPlayer].splice(cardIndex, 1);
+        state.discardPile.push(card);
+        state.message = `Người chơi ${state.playerNames[state.currentPlayer] || (state.currentPlayer + 1)} đánh ${card.color} ${card.value}`;
+
+        // Lưu trữ thông tin người chơi hiện tại để sử dụng trong modal
+        window.currentPlayerIndex = state.currentPlayer;
+        
+        // Xử lý bài đặc biệt
+        if (card.value === 'skip') {
+          // Hiển thị modal chọn người khi đánh lá cấm lượt
+          if (state.currentPlayer.toString() === playerId) {
+            // Đảm bảo các biến trạng thái bỏ qua lượt được đặt lại trước khi chọn người mới
+            state.skipPlayer = null;
+            state.skipPlayerPermanent = false;
+            state.skipNext = false;
+            
+            // Lưu trữ trạng thái hiện tại để sử dụng sau khi chọn người chơi
+            window.currentGameState = state;
+            showPlayerSelectionModal('skip');
+            return state;
+          }
+        } else if (card.value === 'reverse') {
+          state.direction = -state.direction;
+          state.message += ' - Đảo chiều chơi!';
+        } else if (card.value === '+2') {
+          // Hiển thị modal chọn người khi đánh lá +2
+          if (state.currentPlayer.toString() === playerId) {
+            // Lưu trữ trạng thái hiện tại để sử dụng sau khi chọn người chơi
+            window.currentGameState = state;
+            window.cardsToDraw = 2;
+            showPlayerSelectionModal('draw');
+            return state;
+          }
+        } else if (card.value === '+4') {
+          // Hiển thị modal chọn người và màu khi đánh lá +4
+          if (state.currentPlayer.toString() === playerId) {
+            // Lưu trữ trạng thái hiện tại để sử dụng sau khi chọn người chơi
+            window.currentGameState = state;
+            window.cardsToDraw = 4;
+            showPlayerSelectionModal('draw', true); // true để hiển thị chọn màu
+            return state;
+          }
+        } else if (card.value === 'wild') {
+          // Hiển thị modal chọn màu khi đánh lá wild
+          if (state.currentPlayer.toString() === playerId) {
+            // Lưu trữ trạng thái hiện tại để sử dụng sau khi chọn màu
+            window.currentGameState = state;
+            showColorSelectionModal();
+            return state;
+          }
+        }
+
+        // Kiểm tra thắng
+        if (state.players[state.currentPlayer].length === 0) {
+          const winnerName = state.playerNames[state.currentPlayer];
+          state.message = `Người chơi ${winnerName} thắng!`;
+          
+          // Cập nhật điểm cho người chơi
+          if (winnerName === playerName) {
+            // Người chơi hiện tại thắng, cộng 10 điểm
+            updatePlayerPoints(10, 'Thắng game Uno');
+          } else {
+            // Người chơi hiện tại thua, kiểm tra xem có phải thua bét không
+            let maxCards = 0;
+            state.players.forEach((playerCards, index) => {
+              if (index !== state.currentPlayer && playerCards.length > maxCards) {
+                maxCards = playerCards.length;
+              }
+            });
+            
+            // Nếu người chơi hiện tại có số lá bài nhiều nhất (thua bét), cộng 2 điểm
+            if (state.players[playerId] && state.players[playerId].length >= maxCards) {
+              updatePlayerPoints(2, 'Thua bét game Uno');
+            }
+          }
+        }
+
+        return state;
+      }).then(updatedState => {
+        // Nếu không đang chờ chọn người chơi, tự động chuyển lượt sau 1 giây
+        if (document.getElementById('playerSelectionModal').style.display !== 'block' && 
+            document.getElementById('colorSelectionModal').style.display !== 'block') {
+          setTimeout(nextTurn, 1000);
+        }
+      });
+    }
+
+    // Hàm hiển thị modal chọn người chơi
+    function showPlayerSelectionModal(action, showColorSelection = false) {
+      const modal = document.getElementById('playerSelectionModal');
+      const optionsDiv = document.getElementById('playerSelectionOptions');
+      const colorOptionsDiv = document.getElementById('colorSelectionOptions');
+      const title = document.getElementById('playerSelectionTitle');
+      
+      // Đặt tiêu đề dựa trên hành động
+      if (action === 'skip') {
+        title.textContent = 'Chọn người chơi để bỏ qua lượt';
+      } else if (action === 'draw') {
+        title.textContent = `Chọn người chơi để rút ${window.cardsToDraw} lá bài`;
+      }
+      
+      // Hiển thị/ẩn phần chọn màu
+      colorOptionsDiv.style.display = showColorSelection ? 'block' : 'none';
+      
+      // Lấy danh sách người chơi từ trạng thái game hiện tại
+      const state = window.currentGameState;
+      optionsDiv.innerHTML = '';
+      
+      if (state && state.playerNames) {
+        state.playerNames.forEach((name, index) => {
+          // Không hiển thị người chơi hiện tại trong danh sách
+          if (index !== window.currentPlayerIndex) {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-option';
+            playerDiv.textContent = name;
+            playerDiv.dataset.playerId = index;
+            
+            playerDiv.addEventListener('click', () => {
+              // Xử lý khi người chơi được chọn
+              if (action === 'skip') {
+                applySkipToPlayer(index);
+              } else if (action === 'draw') {
+                applyDrawToPlayer(index, showColorSelection);
+              }
+            });
+            
+            optionsDiv.appendChild(playerDiv);
+          }
+        });
+      }
+      
+      // Thêm sự kiện cho các nút chọn màu trong modal chọn người chơi
+      if (showColorSelection) {
+        const colorButtons = colorOptionsDiv.querySelectorAll('.color-option');
+        colorButtons.forEach(button => {
+          button.addEventListener('click', (e) => {
+            window.selectedColor = e.target.dataset.color;
+          });
+        });
+      }
+      
+      modal.style.display = 'flex';
+    }
+    
+    // Hàm hiển thị modal chọn màu
+    function showColorSelectionModal() {
+      const modal = document.getElementById('colorSelectionModal');
+      const colorButtons = modal.querySelectorAll('.color-option');
+      
+      colorButtons.forEach(button => {
+        // Xóa tất cả event listener cũ
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Thêm event listener mới
+        newButton.addEventListener('click', (e) => {
+          const color = e.target.dataset.color;
+          applyColorSelection(color);
+        });
+      });
+      
+      modal.style.display = 'flex';
+    }
+    
+    // Hàm áp dụng bỏ qua lượt cho người chơi được chọn
+    function applySkipToPlayer(playerIndex) {
+      updateGameState(state => {
+        // Đánh dấu người chơi bị bỏ qua lượt
+        state.skipPlayer = playerIndex;
+        // Chỉ đánh dấu bỏ qua một lần, không phải vĩnh viễn
+        state.skipPlayerPermanent = false;
+        state.skipNext = true;
+        state.message += ` - Người chơi ${state.playerNames[playerIndex]} bị bỏ qua lượt!`;
+        
+        // Kiểm tra nếu người chơi hiện tại là người bị chọn để bỏ qua lượt
+        // thì chuyển lượt ngay lập tức
+        if (state.currentPlayer === playerIndex) {
+          state.skipNext = false; // Đã xử lý bỏ qua lượt
+          state.skipPlayer = null; // Đặt lại skipPlayer
+          state.message += ` Chuyển lượt ngay lập tức!`;
+        }
+        
+        // Sau khi đánh lá skip, người chơi hiện tại cũng sẽ bị bỏ qua lượt tiếp theo
+        // Lưu lại người chơi hiện tại (sử dụng số nguyên)
+        state.nextSkipPlayer = Number(state.currentPlayer);
+        return state;
+      }).then(() => {
+        // Đóng modal và chuyển lượt
+        document.getElementById('playerSelectionModal').style.display = 'none';
+        setTimeout(nextTurn, 1000);
+      });
+    }
+    
+    // Hàm áp dụng rút bài cho người chơi được chọn
+    function applyDrawToPlayer(playerIndex, needColor = false) {
+      updateGameState(state => {
+        // Người chơi được chọn rút bài
+        for (let i=0; i<window.cardsToDraw; i++) {
+          if (state.deck.length === 0) reshuffleDeck(state);
+          state.players[playerIndex].push(state.deck.pop());
+        }
+        
+        state.message += ` - Người chơi ${state.playerNames[playerIndex]} rút ${window.cardsToDraw} lá!`;
+        
+        // Nếu cần chọn màu (cho lá +4 hoặc wild)
+        if (needColor && window.selectedColor) {
+          state.discardPile[state.discardPile.length - 1].color = window.selectedColor;
+          state.message += ` - Chọn màu ${window.selectedColor}`;
+        }
+        
+        return state;
+      }).then(() => {
+        // Đóng modal và chuyển lượt
+        document.getElementById('playerSelectionModal').style.display = 'none';
+        setTimeout(nextTurn, 1000);
+      });
+    }
+    
+    // Hàm áp dụng màu đã chọn
+    function applyColorSelection(color) {
+      updateGameState(state => {
+        state.discardPile[state.discardPile.length - 1].color = color;
+        state.message += ` - Chọn màu ${color}`;
+        return state;
+      }).then(() => {
+        // Đóng modal và chuyển lượt
+        document.getElementById('colorSelectionModal').style.display = 'none';
+        setTimeout(nextTurn, 1000);
+      });
+    }
+
+    // Hàm rút bài
+    function drawCard() {
+      updateGameState(state => {
+        // Kiểm tra xem trạng thái game có hợp lệ không
+        if (!state) {
+          console.log('Trạng thái game không hợp lệ trong drawCard');
+          return state;
+        }
+        
+        // Nếu người chơi hiện tại đã bị bỏ qua lượt trước đó, hủy bỏ trạng thái này
+        // vì họ đã có thể rút bài
+        if (state.skipPlayer === state.currentPlayer) {
+          state.skipPlayerPermanent = false;
+          state.skipPlayer = null;
+        }
+        
+        // Kiểm tra xem có phải lượt của người chơi không
+        if (state.currentPlayer.toString() !== playerId) {
+          return state;
+        }
+        
+        // Kiểm tra xem state.deck có tồn tại không
+        if (!state.deck || !Array.isArray(state.deck)) {
+          console.log('Bộ bài không hợp lệ trong drawCard');
+          state.deck = createDeck(); // Tạo bộ bài mới nếu không tồn tại
+          shuffle(state.deck);
+        }
+        
+        if (state.deck.length === 0) reshuffleDeck(state);
+        const card = state.deck.pop();
+        
+        // Kiểm tra xem state.players có tồn tại không
+        if (!state.players || !Array.isArray(state.players) || !state.players[state.currentPlayer]) {
+          console.log('Danh sách người chơi không hợp lệ trong drawCard');
+          return state;
+        }
+        
+        state.players[state.currentPlayer].push(card);
+        state.message = `Người chơi ${state.currentPlayer + 1} rút 1 lá`;
+        return state;
+      });
+      
+      // Không tự động chuyển lượt sau khi người dùng rút bài
+      // Người chơi phải nhấn nút chuyển lượt
+    }
+
+    // Hàm chuyển lượt
+    function nextTurn() {
+      updateGameState(state => {
+        // Kiểm tra xem trạng thái game có hợp lệ không
+        if (!state || !state.playerNames || !state.players) {
+          console.log('Trạng thái game không hợp lệ, không thể chuyển lượt');
+          return state;
+        }
+
+        // Kiểm tra xem trò chơi đã kết thúc chưa
+        if (state.message && state.message.includes('thắng')) {
+          console.log('Trò chơi đã kết thúc, không chuyển lượt');
+          return state;
+        }
+
+        // Lưu lại người chơi hiện tại trước khi chuyển lượt
+        const previousPlayer = state.currentPlayer;
+        const previousPlayerName = state.playerNames[previousPlayer];
+        
+        // Lấy số lượng người chơi thực tế
+        const playerCount = state.playerNames.length;
+        
+        // Hàm tính người chơi tiếp theo dựa trên số lượng người chơi thực tế
+        const getNextPlayer = (current, dir) => {
+          // Xử lý trường hợp đặc biệt khi chỉ có 2 người chơi và đảo chiều
+          if (playerCount === 2) {
+            // Khi chỉ có 2 người chơi, đảo chiều không ảnh hưởng đến thứ tự lượt
+            // Vẫn chuyển từ người chơi 0 -> 1 hoặc 1 -> 0
+            return (current + 1) % 2;
+          } else {
+            // Trường hợp có nhiều hơn 2 người chơi
+            return (current + dir + playerCount) % playerCount;
+          }
+        };
+
+        if (state.skipNext) {
+          // Nếu có người chơi cụ thể bị bỏ qua lượt
+          if (state.skipPlayer !== null) {
+            // Nếu người chơi hiện tại là người bị bỏ qua lượt
+            if (state.currentPlayer === state.skipPlayer) {
+              const playerName = state.playerNames[state.currentPlayer] || `Người chơi ${state.currentPlayer + 1}`;
+              state.message = `${playerName} bị bỏ qua lượt!`;
+              state.skipNext = false;
+              
+              // Luôn đặt skipPlayer thành null sau khi đã bỏ qua lượt
+              // để đảm bảo người chơi chỉ bị bỏ qua một lần
+              state.skipPlayerPermanent = false;
+              state.skipPlayer = null;
+              
+              // Chuyển đến người chơi tiếp theo
+              state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+              
+              // Kiểm tra xem người chơi tiếp theo có phải là người bị bỏ qua lượt không
+              // Nếu có, tiếp tục chuyển lượt
+              if (state.skipPlayer !== null && state.currentPlayer === state.skipPlayer) {
+                const skippedPlayerName = state.playerNames[state.currentPlayer] || `Người chơi ${state.currentPlayer + 1}`;
+                state.message += ` ${skippedPlayerName} cũng bị bỏ qua lượt!`;
+                state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+              }
+          } else {
+            // Cách cũ: bỏ qua lượt người chơi tiếp theo
+            const nextPlayer = getNextPlayer(state.currentPlayer, state.direction);
+            const playerName = state.playerNames[nextPlayer] || `Người chơi ${nextPlayer + 1}`;
+            state.message = `${playerName} bị bỏ qua lượt!`;
+            state.skipNext = false;
+            state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+          }
+          }
+        } else {
+          // Chỉ tính toán người chơi tiếp theo nếu không có lệnh bỏ qua lượt
+          state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+          
+          // Đảm bảo skipPlayer và skipPlayerPermanent được đặt lại thành null và false
+          // khi không còn lệnh bỏ qua lượt
+          state.skipPlayer = null;
+          state.skipPlayerPermanent = false;
+        }
+        
+        // Kiểm tra nếu người chơi hiện tại là người đã đánh lá skip
+        if (state.nextSkipPlayer !== null && state.currentPlayer === state.nextSkipPlayer) {
+          const playerName = state.playerNames[state.currentPlayer] || `Người chơi ${state.currentPlayer + 1}`;
+          state.message = `${playerName} đã đánh lá skip nên bị bỏ qua lượt!`;
+          
+          // Xóa nextSkipPlayer sau khi đã bỏ qua lượt
+          state.nextSkipPlayer = null;
+          
+          // Chuyển đến người chơi tiếp theo
+          state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+          
+          // Kiểm tra xem người chơi tiếp theo có phải là người bị bỏ qua lượt không
+          if (state.skipPlayer !== null && state.currentPlayer === state.skipPlayer) {
+            const skippedPlayerName = state.playerNames[state.currentPlayer] || `Người chơi ${state.currentPlayer + 1}`;
+            state.message += ` ${skippedPlayerName} cũng bị bỏ qua lượt!`;
+            state.skipPlayer = null;
+            state.skipPlayerPermanent = false;
+            state.currentPlayer = getNextPlayer(state.currentPlayer, state.direction);
+          }
+        }
+        
+        // Đã xử lý skipPlayer ở trên, không cần kiểm tra lại ở đây
+        
+        // Đã xử lý skipPlayer ở trên, không cần đặt lại ở đây
+        
+        // Đảm bảo chỉ số người chơi hợp lệ
+        if (state.currentPlayer < 0 || state.currentPlayer >= state.playerNames.length || state.currentPlayer >= state.players.length) {
+          console.log('Chỉ số người chơi không hợp lệ sau khi chuyển lượt:', state.currentPlayer);
+          state.currentPlayer = 0; // Reset về người chơi đầu tiên
+        }
+        
+        // Đảm bảo không có lỗi lặp lại việc bỏ qua lượt
+        if (state.skipPlayer === state.currentPlayer) {
+          console.log('Phát hiện lỗi: Người chơi hiện tại vẫn bị đánh dấu bỏ qua lượt');
+          state.skipPlayer = null;
+          state.skipPlayerPermanent = false;
+        }
+        
+        // Cập nhật thông báo với tên người chơi
+        const playerName = state.playerNames[state.currentPlayer] || `Người chơi ${state.currentPlayer + 1}`;
+        state.message = `Lượt của ${playerName}`;
+
+        // Đảm bảo lượt tiếp theo sẽ là của người chơi khác
+        return state;
+      }).then(updatedState => {
+        // Kiểm tra xem trò chơi đã kết thúc chưa
+        if (!updatedState || (updatedState.message && updatedState.message.includes('thắng'))) {
+          console.log('Trò chơi đã kết thúc hoặc trạng thái không hợp lệ');
+          return;
+        }
+        
+        console.log('Đã chuyển lượt thành công');
+      });
+    }
+
+    // Trộn lại bài bỏ thành bài rút
+    function reshuffleDeck(state) {
+      // Kiểm tra xem state và các thuộc tính cần thiết có tồn tại không
+      if (!state) {
+        console.log('Trạng thái game không hợp lệ trong reshuffleDeck');
+        return;
+      }
+      
+      // Kiểm tra xem state.discardPile có tồn tại và có phải là mảng không
+      if (!state.discardPile || !Array.isArray(state.discardPile) || state.discardPile.length === 0) {
+        console.log('Chồng bài bỏ không hợp lệ trong reshuffleDeck');
+        state.discardPile = [];
+        state.deck = createDeck();
+        shuffle(state.deck);
+        return;
+      }
+      
+      // Lấy lá bài trên cùng của chồng bài bỏ
+      let top = state.discardPile.pop();
+      
+      // Chuyển chồng bài bỏ thành bộ bài rút
+      state.deck = state.discardPile.length > 0 ? state.discardPile : createDeck();
+      shuffle(state.deck);
+      
+      // Đặt lại chồng bài bỏ chỉ với lá bài trên cùng
+      state.discardPile = top ? [top] : [];
+      
+      // Nếu chồng bài bỏ trống, lấy một lá từ bộ bài rút
+      if (state.discardPile.length === 0 && state.deck.length > 0) {
+        state.discardPile.push(state.deck.pop());
+      }
+    }
+
+    // Các chức năng quản lý phòng
+    // Hàm createRoom đã bị xóa
+    
+    async function joinRoom(roomId, roomName) {
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      if (!currentUser || !currentUser.uid) {
+        showRoomMessage('Vui lòng đăng nhập để tham gia phòng!', 'error');
+        return;
+      }
+      
+      // Rời phòng hiện tại nếu có
+      if (currentRoomId) {
+        await leaveRoom();
+      }
+      
+      currentRoomId = roomId;
+      currentRoomName = roomName;
+      gameRef = db.ref('games/' + roomId);
+      isSpectator = false;
+      
+      // Khởi tạo chat cho phòng
+      initializeChat();
+      
+      // Cập nhật UI - Hiển thị sảnh chờ thay vì phòng chơi
+      document.getElementById('roomSection').style.display = 'none';
+      document.getElementById('roomListSection').style.display = 'none';
+      document.getElementById('lobbySection').style.display = 'block';
+      document.getElementById('gameSection').style.display = 'none';
+      document.getElementById('lobbyRoomName').textContent = `Phòng chờ: ${roomName}`;
+      
+      // Thêm người chơi vào phòng
+      const roomRef = roomsRef.child(roomId);
+      const playerRef = roomRef.child('players/' + currentUser.uid);
+      await playerRef.set({
+        displayName: playerName,
+        points: userPoints || 0,
+        isHost: false,
+        joinedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      // Kiểm tra xem người chơi có phải là chủ phòng không
+      const roomSnapshot = await roomRef.once('value');
+      const roomData = roomSnapshot.val() || {};
+      const isHost = roomData.host === currentUser.uid;
+      
+      // Hiển thị/ẩn nút bắt đầu phòng dựa trên vai trò
+      document.getElementById('startGameBtn').style.display = isHost ? 'inline-block' : 'none';
+      document.getElementById('startGameBtnLobby').style.display = isHost ? 'inline-block' : 'none';
+      
+      // Cập nhật danh sách người chơi trong game state
+      const gameSnapshot = await gameRef.once('value');
+      const gameData = gameSnapshot.val() || {};
+      const playerNames = gameData.playerNames || [];
+      
+      if (!playerNames.includes(playerName)) {
+        playerNames.push(playerName);
+        await gameRef.update({ playerNames });
+      }
+      
+      // Gán ID người chơi dựa trên vị trí trong mảng
+      playerId = playerNames.indexOf(playerName).toString();
+      
+      // Bắt đầu lắng nghe thay đổi
+      listenToGameChanges();
+      
+      // Lắng nghe sự thay đổi của danh sách người chơi trong phòng
+      listenToRoomPlayers(roomId);
+      
+      showRoomMessage(`Đã tham gia phòng: ${roomName}`, 'success');
+    }
+    
+    // Hàm tham gia phòng với tư cách người xem
+    async function spectateRoom(roomId, roomName) {
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      if (!currentUser || !currentUser.uid) {
+        showRoomMessage('Vui lòng đăng nhập để xem phòng!', 'error');
+        return;
+      }
+      
+      // Rời phòng hiện tại nếu có
+      if (currentRoomId) {
+        await leaveRoom();
+      }
+      
+      currentRoomId = roomId;
+      currentRoomName = roomName;
+      gameRef = db.ref('games/' + roomId);
+      isSpectator = true;
+      
+      // Khởi tạo chat cho phòng
+      initializeChat();
+      
+      // Cập nhật UI - Hiển thị phòng chơi nếu trò chơi đã bắt đầu
+      document.getElementById('roomSection').style.display = 'none';
+      document.getElementById('roomListSection').style.display = 'none';
+      
+      // Thêm người xem vào phòng
+      const roomRef = roomsRef.child(roomId);
+      const spectatorRef = roomRef.child('spectators/' + currentUser.uid);
+      await spectatorRef.set({
+        displayName: playerName,
+        joinedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      
+      // Kiểm tra trạng thái phòng
+      const roomSnapshot = await roomRef.once('value');
+      const roomData = roomSnapshot.val() || {};
+      
+      if (roomData.status === 'playing') {
+        // Nếu phòng đang chơi, hiển thị giao diện game
+        document.getElementById('lobbySection').style.display = 'none';
+        document.getElementById('gameSection').style.display = 'block';
+        document.getElementById('gameRoomName').textContent = `Phòng: ${roomName} (Đang xem)`;
+        
+        // Ẩn các nút điều khiển game
+        document.getElementById('drawCardBtn').style.display = 'none';
+        document.getElementById('passBtn').style.display = 'none';
+        
+        // Hiển thị thông báo
+        showGameMessage('Bạn đang xem trận đấu này', 'info');
+      } else {
+        // Nếu phòng chưa bắt đầu, hiển thị sảnh chờ
+        document.getElementById('lobbySection').style.display = 'block';
+        document.getElementById('gameSection').style.display = 'none';
+        document.getElementById('lobbyRoomName').textContent = `Phòng chờ: ${roomName} (Đang xem)`;
+        
+        // Ẩn nút bắt đầu phòng
+        document.getElementById('startGameBtn').style.display = 'none';
+      }
+      
+      // Bắt đầu lắng nghe thay đổi
+      listenToGameChanges();
+      
+      // Lắng nghe sự thay đổi của danh sách người chơi trong phòng
+      listenToRoomPlayers(roomId);
+      
+      showRoomMessage(`Đang xem phòng: ${roomName}`, 'info');
+    }
+    
+    // Lắng nghe sự thay đổi của danh sách người chơi trong phòng
+    function listenToRoomPlayers(roomId) {
+      const roomRef = roomsRef.child(roomId);
+      const playerListDiv = document.getElementById('roomPlayerList');
+      const lobbyPlayerListDiv = document.getElementById('lobbyPlayerList');
+      
+      // Lắng nghe sự thay đổi của thông tin phòng (bao gồm chủ phòng)
+      roomRef.on('value', roomSnapshot => {
+        // Kiểm tra xem phòng còn tồn tại không
+        if (!roomSnapshot.exists()) {
+          console.log('Phòng không còn tồn tại, tự động rời phòng');
+          // Nếu phòng không còn tồn tại, tự động rời phòng
+          document.getElementById('roomSection').style.display = 'block';
+          document.getElementById('roomListSection').style.display = 'block';
+          document.getElementById('lobbySection').style.display = 'none';
+          document.getElementById('gameSection').style.display = 'none';
+          
+          // Ngừng lắng nghe sự thay đổi
+          roomRef.off();
+          if (gameRef) gameRef.off();
+          
+          // Đặt lại các biến
+          currentRoomId = null;
+          gameRef = null;
+          playerId = null;
+          currentRoomName = '';
+          
+          showRoomMessage('Phòng đã bị xóa!', 'error');
+          return;
+        }
+        
+        const roomData = roomSnapshot.val() || {};
+        const isHost = roomData.host === playerName;
+        
+        // Cập nhật hiển thị nút bắt đầu phòng dựa trên vai trò
+        document.getElementById('startGameBtn').style.display = isHost ? 'inline-block' : 'none';
+        document.getElementById('startGameBtnLobby').style.display = isHost ? 'inline-block' : 'none';
+        
+        // Kiểm tra xem trò chơi đã bắt đầu chưa
+        if (roomData.gameStarted) {
+          // Nếu trò chơi đã bắt đầu, chuyển sang giao diện trò chơi
+          document.getElementById('roomSection').style.display = 'none';
+          document.getElementById('lobbySection').style.display = 'none';
+          document.getElementById('gameSection').style.display = 'block';
+          
+          // Bắt đầu lắng nghe thay đổi trò chơi nếu chưa
+          listenToGameChanges();
+        }
+      });
+      
+      // Lắng nghe sự thay đổi của danh sách người chơi
+      roomRef.child('players').on('value', snapshot => {
+        playerListDiv.innerHTML = '';
+        lobbyPlayerListDiv.innerHTML = '';
+        
+        if (!snapshot.exists()) {
+          playerListDiv.innerHTML = '<p>Chưa có người chơi nào trong phòng.</p>';
+          lobbyPlayerListDiv.innerHTML = '<p>Chưa có người chơi nào trong phòng.</p>';
+          return;
+        }
+        
+        // Lấy thông tin phòng để biết ai là chủ phòng
+        roomRef.once('value', roomSnapshot => {
+          if (!roomSnapshot.exists()) {
+            return; // Phòng không còn tồn tại
+          }
+          
+          const roomData = roomSnapshot.val() || {};
+          const hostId = roomData.host;
+          
+          // Lấy danh sách người chơi
+          const players = snapshot.val() || {};
+          const playerIds = Object.keys(players);
+          
+          // Cập nhật danh sách người chơi trong phòng chơi
+          playerIds.forEach(playerId => {
+            const playerData = players[playerId] || {};
+            const name = playerData.displayName || 'Người chơi không xác định';
+            
+            const playerItem = document.createElement('div');
+            playerItem.className = 'player-item';
+            let displayText = name;
+            
+            // Đánh dấu người chơi hiện tại
+            if (currentUser && playerId === currentUser.uid) {
+              displayText += ' (Bạn)';
+            }
+            
+            // Đánh dấu chủ phòng
+            if (playerId === hostId) {
+              displayText += ' 👑';
+            }
+            
+            playerItem.textContent = displayText;
+            playerListDiv.appendChild(playerItem);
+            
+            // Tạo bản sao cho sảnh chờ
+            const lobbyPlayerItem = playerItem.cloneNode(true);
+            lobbyPlayerListDiv.appendChild(lobbyPlayerItem);
+          });
+        });
+      });
+    }
+    
+    async function leaveRoom() {
+      if (!currentRoomId || !currentUser || !currentUser.uid) return;
+      
+      // Lấy thông tin phòng
+      const roomRef = roomsRef.child(currentRoomId);
+      const roomSnapshot = await roomRef.once('value');
+      const roomData = roomSnapshot.val() || {};
+      const isHost = roomData.host === currentUser.uid;
+      
+      if (isSpectator) {
+        // Xóa người xem khỏi phòng
+        const spectatorRef = roomRef.child('spectators/' + currentUser.uid);
+        await spectatorRef.remove();
+      } else {
+        // Xóa người chơi khỏi phòng
+        const playerRef = roomRef.child('players/' + currentUser.uid);
+        await playerRef.remove();
+        
+        // Cập nhật danh sách người chơi trong game state
+        if (gameRef) {
+          const gameSnapshot = await gameRef.once('value');
+          const gameData = gameSnapshot.val() || {};
+          let playerNames = gameData.playerNames || [];
+          
+          playerNames = playerNames.filter(name => name !== playerName);
+          await gameRef.update({ playerNames });
+        }
+        
+        // Nếu là chủ phòng, kiểm tra xem còn người chơi nào khác không
+        if (isHost) {
+          const playersSnapshot = await roomRef.child('players').once('value');
+          const players = playersSnapshot.val() || {};
+          const remainingPlayers = Object.keys(players);
+          
+          if (remainingPlayers.length === 0) {
+            // Nếu không còn người chơi nào, xóa phòng
+            await roomRef.remove();
+            await db.ref('games/' + currentRoomId).remove();
+            console.log('Phòng đã bị xóa vì không còn người chơi nào.');
+          } else {
+            // Chuyển quyền chủ phòng cho người chơi đầu tiên còn lại
+            const newHost = remainingPlayers[0];
+            await roomRef.update({ host: newHost });
+            
+            // Cập nhật trạng thái isHost cho người chơi mới
+            await roomRef.child('players/' + newHost).update({ isHost: true });
+            
+            // Lấy tên hiển thị của người chơi mới
+            const newHostData = players[newHost] || {};
+            const newHostName = newHostData.displayName || newHost;
+            console.log(`Đã chuyển quyền chủ phòng cho ${newHostName}`);
+          }
+        }
+      }
+      
+      // Ngừng lắng nghe sự thay đổi của danh sách người chơi trong phòng
+      roomRef.child('players').off();
+      if (roomRef.child('spectators')) {
+        roomRef.child('spectators').off();
+      }
+      
+      // Ngừng lắng nghe tin nhắn chat
+      if (chatRef) {
+        chatRef.off();
+        chatRef = null;
+      }
+      
+      // Ẩn chat box
+      document.getElementById('chatBox').style.display = 'none';
+      
+      // Ngừng lắng nghe thay đổi game
+      if (gameRef) {
+        gameRef.off();
+      }
+      }
+      
+      // Cập nhật UI
+      document.getElementById('roomSection').style.display = 'block';
+      document.getElementById('roomListSection').style.display = 'block';
+      document.getElementById('lobbySection').style.display = 'none';
+      document.getElementById('gameSection').style.display = 'none';
+      
+      currentRoomId = null;
+      gameRef = null;
+      playerId = null;
+      currentRoomName = '';
+      isSpectator = false;
+      
+      showRoomMessage('Đã rời phòng thành công!', 'success');
+    
+    
+    // Đã loại bỏ chức năng bot
+
+    async function startGame() {
+      if (!gameRef || !currentRoomId) {
+        showRoomMessage('Không thể bắt đầu trò chơi: Phòng không tồn tại!', 'error');
+        return;
+      }
+      
+      // Kiểm tra xem người chơi có phải là chủ phòng không
+      const roomRef = roomsRef.child(currentRoomId);
+      const roomSnapshot = await roomRef.once('value');
+      const roomData = roomSnapshot.val() || {};
+      
+      if (roomData.host !== playerName) {
+        showRoomMessage('Chỉ chủ phòng mới có thể bắt đầu trò chơi!', 'error');
+        return;
+      }
+      
+      const snapshot = await gameRef.once('value');
+      const state = snapshot.val() || {};
+      
+      if (state.playerNames && state.playerNames.length >= 2) {
+        try {
+          console.log('Bắt đầu khởi tạo trò chơi...');
+          
+          // Sử dụng updateGameState để khởi tạo và lưu trạng thái game
+          await updateGameState(state => {
+            // Khởi tạo trạng thái game mới
+            const deck = createDeck();
+            shuffle(deck);
+            let playersCards = [[],[],[],[]]; 
+            
+            // Phát bài cho tất cả người chơi
+            for (let i=0; i < 4; i++) {
+              for (let j=0; j<7; j++) {
+                playersCards[i].push(deck.pop());
+              }
+            }
+            
+            let discardPile = [];
+            while(true) {
+              let c = deck.pop();
+              if (c.color !== 'wild') {
+                discardPile.push(c);
+                break;
+              } else {
+                deck.unshift(c);
+                shuffle(deck);
+              }
+            }
+            
+            console.log('Trạng thái trò chơi đã được khởi tạo');
+            
+            // Trả về trạng thái game mới
+            return {
+              deck,
+              players: playersCards,
+              discardPile,
+              currentPlayer: 0,
+              direction: 1,
+              skipNext: false,
+              skipPlayer: null,
+              skipPlayerPermanent: false,
+              nextSkipPlayer: null,
+              message: 'Game bắt đầu! Người chơi 1 đi trước.',
+              started: true,
+              playerNames: state.playerNames
+            };
+          });
+          
+          // Cập nhật trạng thái phòng để đánh dấu đã bắt đầu
+          await roomRef.update({ gameStarted: true });
+          
+          // Chuyển đổi giao diện từ phòng chờ sang giao diện trò chơi
+          document.getElementById('roomSection').style.display = 'none';
+          document.getElementById('gameSection').style.display = 'block';
+          
+          // Bắt đầu lắng nghe thay đổi trò chơi
+          listenToGameChanges();
+          
+          showRoomMessage('Trò chơi đã bắt đầu!', 'success');
+          console.log('Trò chơi đã bắt đầu thành công!');
+          
+          // Trò chơi đã bắt đầu thành công
+        } catch (error) {
+          console.error('Lỗi khi bắt đầu trò chơi:', error);
+          showRoomMessage('Có lỗi xảy ra khi bắt đầu trò chơi!', 'error');
+        }
+      } else {
+        showRoomMessage('Phòng phải có từ 2 người trở lên để bắt đầu!', 'error');
+      }
+    }
+    
+    function showRoomMessage(message, type = 'info') {
+      const messageEl = document.getElementById('roomMessage');
+      messageEl.textContent = message;
+      messageEl.style.color = type === 'error' ? '#ff6b6b' : '#a3ff9e';
+      
+      // Tự động ẩn sau 3 giây
+      setTimeout(() => {
+        messageEl.textContent = '';
+      }, 3000);
+    }
+    
+    // Chức năng chat
+    let chatRef = null;
+    
+    function initializeChat() {
+       if (!currentRoomId) return;
+       
+       // Hiển thị chat box khi vào phòng
+       document.getElementById('chatBox').style.display = 'flex';
+       
+       // Xóa tất cả tin nhắn cũ trước khi hiển thị tin nhắn mới
+       document.getElementById('chatMessages').innerHTML = '';
+       
+       // Tạo tham chiếu đến chat của phòng hiện tại
+       chatRef = db.ref('chats/' + currentRoomId);
+       
+       // Lắng nghe tin nhắn mới
+       chatRef.on('child_added', snapshot => {
+         const message = snapshot.val();
+         displayChatMessage(message);
+       });
+     }
+    
+    function displayChatMessage(message) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageElement = document.createElement('div');
+      
+      // Xác định xem tin nhắn là của người dùng hiện tại hay người khác
+      const isCurrentUser = message.sender === playerName;
+      messageElement.className = `chat-message ${isCurrentUser ? 'sent' : 'received'}`;
+      
+      // Thêm tên người gửi (chỉ hiển thị cho tin nhắn nhận được)
+      if (!isCurrentUser) {
+        const senderElement = document.createElement('div');
+        senderElement.className = 'message-sender';
+        senderElement.textContent = message.sender;
+        messageElement.appendChild(senderElement);
+      }
+      
+      // Thêm nội dung tin nhắn
+      const contentElement = document.createElement('div');
+      contentElement.textContent = message.text;
+      messageElement.appendChild(contentElement);
+      
+      chatMessages.appendChild(messageElement);
+      
+      // Cuộn xuống tin nhắn mới nhất
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    function sendChatMessage() {
+      if (!chatRef) return;
+      
+      const chatInput = document.getElementById('chatInput');
+      const messageText = chatInput.value.trim();
+      
+      if (messageText) {
+        // Tạo đối tượng tin nhắn
+        const message = {
+          sender: playerName,
+          text: messageText,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        // Đẩy tin nhắn lên Firebase
+        chatRef.push(message);
+        
+        // Xóa nội dung input
+        chatInput.value = '';
+      }
+    }
+    
+    // Tất cả các event listener đã được chuyển vào trong sự kiện DOMContentLoaded
+    
+    // Tất cả các event listener cho nút đã được chuyển vào trong sự kiện DOMContentLoaded
+    
+    // Đảm bảo rằng tất cả các event listener được thêm sau khi DOM đã tải hoàn toàn
+    window.addEventListener('DOMContentLoaded', () => {
+      // Thêm event listener cho các nút chỉ khi chúng tồn tại trong DOM
+      const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+      const leaveRoomBtnLobby = document.getElementById('leaveRoomBtnLobby');
+      const startGameBtn = document.getElementById('startGameBtn');
+      const startGameBtnLobby = document.getElementById('startGameBtnLobby');
+      const backToLobbyBtn = document.getElementById('backToLobbyBtn');
+      const drawCardBtnElement = document.getElementById('drawCardBtn');
+      const nextTurnBtnElement = document.getElementById('nextTurnBtn');
+      const chatSendBtn = document.getElementById('chatSendBtn');
+      const chatInput = document.getElementById('chatInput');
+      const chatToggleBtn = document.getElementById('chatToggleBtn');
+      const joinRoomBtn = document.getElementById('joinRoomBtn');
+      
+      // Xử lý sự kiện cho chat box
+      if (chatSendBtn) {
+        chatSendBtn.addEventListener('click', sendChatMessage);
+      }
+      
+      if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            sendChatMessage();
+          }
+        });
+      }
+      
+      if (chatToggleBtn) {
+        chatToggleBtn.addEventListener('click', () => {
+          const chatBox = document.getElementById('chatBox');
+          chatToggleBtn.textContent = chatBox.classList.contains('minimized') ? '+' : '_';
+          chatBox.classList.toggle('minimized');
+        });
+      }
+      
+      // Nút bấm tham gia phòng
+      if (joinRoomBtn) {
+        joinRoomBtn.addEventListener('click', async () => {
+          const roomName = document.getElementById('roomNameInput').value.trim();
+          if (!roomName) {
+            showRoomMessage('Vui lòng nhập tên phòng!', 'error');
+            return;
+          }
+          
+          // Tìm phòng theo tên
+          const roomsSnapshot = await roomsRef.orderByChild('name').equalTo(roomName).once('value');
+          if (!roomsSnapshot.exists()) {
+            showRoomMessage('Không tìm thấy phòng với tên này!', 'error');
+            return;
+          }
+          
+          // Lấy ID phòng đầu tiên tìm thấy
+          let roomId = null;
+          roomsSnapshot.forEach(childSnapshot => {
+            roomId = childSnapshot.key;
+            return true; // Dừng vòng lặp sau khi tìm thấy phòng đầu tiên
+          });
+          
+          if (roomId) {
+            joinRoom(roomId, roomName);
+          }
+        });
+      }
+      
+      // Các nút trong game
+      if (leaveRoomBtn) {
+        leaveRoomBtn.addEventListener('click', leaveRoom);
+      }
+      
+      if (leaveRoomBtnLobby) {
+        leaveRoomBtnLobby.addEventListener('click', leaveRoom);
+      }
+      
+      if (startGameBtn) {
+        startGameBtn.addEventListener('click', startGame);
+      }
+      
+      if (startGameBtnLobby) {
+        startGameBtnLobby.addEventListener('click', startGame);
+      }
+      
+      if (backToLobbyBtn) {
+        backToLobbyBtn.addEventListener('click', () => {
+          window.location.href = 'trangchu.html';
+        });
+      }
+      
+      if (drawCardBtnElement) {
+        drawCardBtnElement.addEventListener('click', drawCard);
+      }
+      
+      if (nextTurnBtnElement) {
+        nextTurnBtnElement.addEventListener('click', nextTurn);
+      }
+    });
+
+  </script>
+</body>
+</html>
