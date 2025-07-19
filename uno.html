@@ -1713,7 +1713,7 @@
         }
         
         const roomData = roomSnapshot.val() || {};
-        const isHost = roomData.host === playerName;
+        const isHost = roomData.host === currentUser.uid;
         
         // Cập nhật hiển thị nút bắt đầu phòng dựa trên vai trò
         document.getElementById('startGameBtn').style.display = isHost ? 'inline-block' : 'none';
@@ -1809,8 +1809,12 @@
           const gameData = gameSnapshot.val() || {};
           let playerNames = gameData.playerNames || [];
           
-          playerNames = playerNames.filter(name => name !== playerName);
-          await gameRef.update({ playerNames });
+          // Tìm vị trí của người chơi trong mảng playerNames dựa trên playerId
+          const playerIndex = parseInt(playerId);
+          if (playerIndex >= 0 && playerIndex < playerNames.length) {
+            playerNames.splice(playerIndex, 1);
+            await gameRef.update({ playerNames });
+          }
         }
         
         // Nếu là chủ phòng, kiểm tra xem còn người chơi nào khác không
@@ -1889,7 +1893,7 @@
       const roomSnapshot = await roomRef.once('value');
       const roomData = roomSnapshot.val() || {};
       
-      if (roomData.host !== playerName) {
+      if (roomData.host !== currentUser.uid) {
         showRoomMessage('Chỉ chủ phòng mới có thể bắt đầu trò chơi!', 'error');
         return;
       }
