@@ -510,7 +510,7 @@
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
       if (!userInfo || !userInfo.uid) {
         // Chuyển hướng về trang chủ nếu chưa đăng nhập
-        window.location.href = 'trangchu.html';
+        window.location.href = 'index.html';
         return;
       }
       
@@ -523,7 +523,7 @@
       const roomId = localStorage.getItem('selectedRoomId');
       if (!roomId) {
         // Chuyển hướng về trang chủ nếu không có ID phòng
-        window.location.href = 'trangchu.html';
+        window.location.href = 'index.html';
         return;
       }
       
@@ -531,7 +531,7 @@
       db.ref('rooms/' + roomId).once('value', snapshot => {
         if (!snapshot.exists()) {
           // Chuyển hướng về trang chủ nếu phòng không tồn tại
-          window.location.href = 'trangchu.html';
+          window.location.href = 'index.html';
           return;
         }
         
@@ -1087,7 +1087,7 @@
       localStorage.removeItem('isSpectator');
       
       // Chuyển hướng về trang chủ
-      window.location.href = 'trangchu.html';
+      window.location.href = 'index.html';
     }
     
     // Hàm bắt đầu trò chơi
