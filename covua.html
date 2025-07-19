@@ -565,7 +565,7 @@
       // Kiểm tra xem người dùng đã đăng nhập chưa
       if (!currentUser) {
         alert('Vui lòng đăng nhập trước khi tham gia phòng!');
-        window.location.href = 'trangchu.html';
+        window.location.href = 'index.html';
         return;
       }
       
@@ -578,7 +578,7 @@
       roomRef.once('value', snapshot => {
         if (!snapshot.exists()) {
           alert('Phòng không tồn tại!');
-          window.location.href = 'trangchu.html';
+          window.location.href = 'index.html';
           return;
         }
         
@@ -652,7 +652,7 @@
       // Kiểm tra xem người dùng đã đăng nhập chưa
       if (!currentUser) {
         alert('Vui lòng đăng nhập trước khi xem phòng!');
-        window.location.href = 'trangchu.html';
+        window.location.href = 'index.html';
         return;
       }
       
@@ -665,7 +665,7 @@
       roomRef.once('value', snapshot => {
         if (!snapshot.exists()) {
           alert('Phòng không tồn tại!');
-          window.location.href = 'trangchu.html';
+          window.location.href = 'index.html';
           return;
         }
         
@@ -715,7 +715,7 @@
       roomPlayersRef.on('value', snapshot => {
         if (!snapshot.exists()) {
           alert('Phòng đã bị xóa!');
-          window.location.href = 'trangchu.html';
+          window.location.href = 'index.html';
           return;
         }
         
