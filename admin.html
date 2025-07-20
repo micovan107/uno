@@ -1645,6 +1645,13 @@
         } else {
           videoState.player.unMute();
         }
+        
+        // Đảm bảo video phát sau khi tải
+        setTimeout(() => {
+          if (videoState.player && videoState.player.playVideo) {
+            videoState.player.playVideo();
+          }
+        }, 500);
       } else {
         videoState.player = new YT.Player('videoPreview', {
           height: '100%',
@@ -1671,8 +1678,18 @@
       } else {
         event.target.unMute();
       }
+      
+      // Đảm bảo video phát
       event.target.playVideo();
       videoState.isPlaying = true;
+      
+      // Thêm một lần nữa để đảm bảo video phát
+      setTimeout(() => {
+        if (event.target && event.target.playVideo) {
+          event.target.playVideo();
+          videoState.isPlaying = true;
+        }
+      }, 1000);
     }
     
     // Hàm xử lý khi trạng thái player thay đổi
@@ -1757,6 +1774,14 @@
         loadYouTubeAPI();
         window.onYouTubeIframeAPIReady = function() {
           initYouTubePlayer(videoId);
+          
+          // Đảm bảo video phát sau khi API đã tải
+          setTimeout(() => {
+            if (videoState.player && videoState.player.playVideo) {
+              videoState.player.playVideo();
+              videoState.isPlaying = true;
+            }
+          }, 1000);
         };
       }
       
@@ -1893,6 +1918,14 @@
           loadYouTubeAPI();
           window.onYouTubeIframeAPIReady = function() {
             initYouTubePlayer(videoId);
+            
+            // Đảm bảo video phát sau khi API đã tải
+            setTimeout(() => {
+              if (videoState.player && videoState.player.playVideo) {
+                videoState.player.playVideo();
+                videoState.isPlaying = true;
+              }
+            }, 1000);
           };
         }
         

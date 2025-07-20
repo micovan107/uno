@@ -1673,6 +1673,13 @@
           videoId: videoId,
           startSeconds: startTime
         });
+        // Đảm bảo video phát sau khi tải
+        setTimeout(() => {
+          if (ytPlayer && ytPlayer.playVideo) {
+            ytPlayer.playVideo();
+            document.getElementById('backgroundVideo').style.display = 'block';
+          }
+        }, 500);
       } else {
         ytPlayer = new YT.Player('backgroundVideo', {
           videoId: videoId,
@@ -1698,8 +1705,16 @@
     
     // Hàm xử lý khi player sẵn sàng
     function onPlayerReady(event) {
+      // Đảm bảo video phát và hiển thị
       event.target.playVideo();
       document.getElementById('backgroundVideo').style.display = 'block';
+      
+      // Thêm một lần nữa để đảm bảo video phát
+      setTimeout(() => {
+        if (event.target && event.target.playVideo) {
+          event.target.playVideo();
+        }
+      }, 1000);
     }
     
     // Hàm xử lý khi trạng thái player thay đổi
@@ -1724,7 +1739,29 @@
           
           // Hiển thị và phát video
           if (window.YT && window.YT.Player) {
-            initYouTubePlayer(data.videoId, currentTime);
+            // Kiểm tra nếu video đang phát và là cùng một video
+            if (ytPlayer && ytPlayer.getVideoData && ytPlayer.getVideoData().video_id === data.videoId) {
+              // Đồng bộ thời gian nếu chênh lệch quá 3 giây
+              const currentPlayerTime = ytPlayer.getCurrentTime();
+              if (Math.abs(currentPlayerTime - currentTime) > 3) {
+                ytPlayer.seekTo(currentTime, true);
+              }
+              
+              // Đảm bảo video đang phát
+              if (ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                ytPlayer.playVideo();
+                
+                // Thêm một lần nữa để đảm bảo video phát
+                setTimeout(() => {
+                  if (ytPlayer && ytPlayer.playVideo) {
+                    ytPlayer.playVideo();
+                  }
+                }, 500);
+              }
+            } else {
+              // Nếu là video khác hoặc chưa phát, khởi tạo mới
+              initYouTubePlayer(data.videoId, currentTime);
+            }
             
             // Áp dụng trạng thái tắt tiếng
             if (ytPlayer) {
@@ -1738,8 +1775,19 @@
             loadYouTubeAPI();
             window.onYouTubeIframeAPIReady = function() {
               initYouTubePlayer(data.videoId, currentTime);
+              
+              // Đảm bảo video phát sau khi API đã tải
+              setTimeout(() => {
+                if (ytPlayer && ytPlayer.playVideo) {
+                  ytPlayer.playVideo();
+                  document.getElementById('backgroundVideo').style.display = 'block';
+                }
+              }, 1000);
             };
           }
+          
+          // Hiển thị video
+          document.getElementById('backgroundVideo').style.display = 'block';
         } else {
           // Dừng và ẩn video
           if (ytPlayer) {
@@ -1748,7 +1796,30 @@
           document.getElementById('backgroundVideo').style.display = 'none';
         }
       });
+      
+      // Đồng bộ video mỗi 10 giây
+      setInterval(() => {
+        if (ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          db.ref('videoState').once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data || !data.isPlaying) return;
+            
+            // Tính toán thời gian hiện tại của video từ server
+            const timeSinceUpdate = (Date.now() - data.lastUpdateTime) / 1000;
+            const serverTime = data.currentTime + timeSinceUpdate;
+            
+            // Lấy thời gian hiện tại của player
+            const currentPlayerTime = ytPlayer.getCurrentTime();
+            
+            // Nếu chênh lệch quá 3 giây, đồng bộ lại
+            if (Math.abs(currentPlayerTime - serverTime) > 3) {
+              ytPlayer.seekTo(serverTime, true);
+            }
+          });
+        }
+      }, 10000); // Kiểm tra mỗi 10 giây
     }
+    
     
     // Lắng nghe trạng thái video
     listenToVideoState();
