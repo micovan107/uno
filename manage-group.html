@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhóm</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/create-group.css"> <!-- Tái sử dụng style từ form tạo nhóm -->
+    <link rel="stylesheet" href="css/manage-group.css"> <!-- Style riêng cho trang quản lý -->
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/" class="logo">vex</a>
+            <nav class="main-nav">
+                <div id="user-menu" class="user-menu"></div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="form-container" id="management-container" style="display: none;">
+        <h1>Quản lý nhóm: <span id="group-name-title"></span></h1>
+
+        <div class="tab-navigation">
+            <button class="tab-link active" data-tab="general-settings">Thông tin chung</button>
+            <button class="tab-link" data-tab="members">Thành viên</button>
+            <button class="tab-link" data-tab="requests">Yêu cầu tham gia <span id="requests-count-badge" class="badge" style="display: none;"></span></button>
+            <button class="tab-link" data-tab="permissions">Nhãn quyền</button>
+            <button class="tab-link" data-tab="posts">Bài đăng</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="general-settings" class="tab-content" style="display: block;">
+            <h2>Thông tin chung</h2>
+            <!-- Form chỉnh sửa thông tin -->
+            <form id="manage-group-form">
+                <div class="form-group">
+                    <label for="group-display-name">Tên hiển thị của nhóm</label>
+                    <input type="text" id="group-display-name" name="group-display-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="group-description">Mô tả</label>
+                    <textarea id="group-description" name="group-description" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Quyền riêng tư</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="privacy" value="public">
+                            <i class="fa-solid fa-earth-asia"></i> Công khai
+                            <small>Bất kỳ ai cũng có thể xem và tham gia nhóm này.</small>
+                        </label>
+                        <label>
+                            <input type="radio" name="privacy" value="private">
+                            <i class="fa-solid fa-lock"></i> Riêng tư
+                            <small>Chỉ thành viên mới có thể xem và đăng bài. Người khác cần được duyệt để tham gia.</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="group-avatar">Thay đổi ảnh đại diện:</label>
+                    <input type="file" id="group-avatar" name="group-avatar" accept="image/*">
+                    <div id="avatar-preview" class="image-preview">
+                        <!-- Ảnh đại diện hiện tại sẽ được load ở đây -->
+                    </div>
+                </div>
+                <button type="submit">Lưu Thay Đổi</button>
+            </form>
+
+            <!-- Khu vực nguy hiểm -->
+            <div class="danger-zone">
+                <h2>Khu Vực Nguy Hiểm</h2>
+                <p>Hành động này không thể hoàn tác. Tất cả bài viết và dữ liệu liên quan đến nhóm sẽ bị mất.</p>
+                <button id="delete-group-btn" class="danger-button">Xóa Nhóm Này</button>
+            </div>
+        </div>
+
+        <div id="members" class="tab-content">
+            <h2>Quản lý thành viên</h2>
+            <div id="member-list-container">
+                <!-- Danh sách thành viên sẽ được tải động vào đây -->
+            </div>
+        </div>
+
+        <div id="requests" class="tab-content">
+            <h2>Yêu cầu tham gia</h2>
+            <div id="request-list-container">
+                <!-- Danh sách yêu cầu tham gia sẽ được tải động vào đây -->
+            </div>
+        </div>
+
+        <div id="permissions" class="tab-content">
+            <h2>Quản lý nhãn quyền</h2>
+            <form id="create-label-form">
+                <h3>Tạo nhãn mới</h3>
+                <div class="form-group">
+                    <label for="label-name">Tên nhãn</label>
+                    <input type="text" id="label-name" name="label-name" placeholder="VD: Thành viên tích cực" required>
+                </div>
+                <div class="form-group">
+                    <label for="label-color">Màu nhãn</label>
+                    <input type="color" id="label-color" name="label-color" value="#cccccc">
+                </div>
+                <button type="submit">Tạo Nhãn</button>
+            </form>
+            <div id="label-list-container">
+                <h3>Nhãn hiện có</h3>
+                <!-- Danh sách nhãn quyền sẽ được tải động vào đây -->
+            </div>
+        </div>
+
+        <div id="posts" class="tab-content">
+            <h2>Quản lý bài đăng</h2>
+            <div id="post-management-list">
+                <!-- Danh sách bài đăng để quản lý sẽ được tải vào đây -->
+            </div>
+        </div>
+    </main>
+
+    <div id="loading-message">
+        <p>Đang tải thông tin quản lý...</p>
+    </div>
+     <div id="error-message" style="display: none; text-align: center; padding: 20px;">
+        <h2>Truy cập bị từ chối</h2>
+        <p>Bạn không có quyền quản lý nhóm này hoặc nhóm không tồn tại.</p>
+        <a href="/">Quay về trang chủ</a>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/manage-group.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhóm - Diễn Đàn GenZ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/group.css">
+</head>
+<body>
+    <div class="group-page-container">
+        <header id="main-header">
+            <div class="header-container">
+                <a href="/" class="logo">vex</a>
+                <nav class="main-nav">
+                    <div id="user-menu" class="user-menu"></div>
+                </nav>
+            </div>
+        </header>
+
+        <header id="group-header" class="group-header-banner">
+            <!-- Nội dung header (avatar, tên, mô tả, nút) sẽ được JS render vào đây -->
+        </header>
+
+        <main class="group-main-layout">
+            <!-- Cột bên trái: Lọc theo nhãn -->
+            <aside class="left-sidebar" id="tag-filter-sidebar">
+                <h4>Lọc theo nhãn</h4>
+                <ul id="tag-list">
+                    <!-- Danh sách nhãn sẽ được JS render vào đây -->
+                </ul>
+            </aside>
+
+            <!-- Cột ở giữa: Danh sách bài đăng -->
+            <section class="main-content" id="group-posts">
+                <!-- Các bài đăng của nhóm sẽ được load ở đây -->
+            </section>
+
+            <!-- Cột bên phải: Thông tin và thành viên -->
+            <aside class="right-sidebar" id="group-info-sidebar">
+                <div class="sidebar-widget">
+                    <h4>Thành viên nhóm</h4>
+                    <ul id="member-list">
+                        <!-- Danh sách thành viên sẽ được JS render vào đây -->
+                    </ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/group.js"></script>
+</body>
+</html>

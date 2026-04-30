@@ -1,0 +1,57 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": ["followers"],
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        "groups": {},
+        "joinedGroups": {
+          "$groupId": {
+            // Cho phép ghi nếu:
+            // 1. Người dùng tự sửa danh sách của mình (VD: rời nhóm)
+            // 2. Người thực hiện là người tạo ra nhóm đó (VD: duyệt yêu cầu)
+            ".write": "auth != null && (auth.uid === $uid || root.child('groups/' + $groupId + '/creatorId').val() === auth.uid)"
+          }
+        }
+      }
+    },
+    "status": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "posts": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": ["createdAt", "groupId", "authorId"]
+    },
+    "groups": {
+      ".read": true,
+      ".indexOn": ["creatorId"],
+      "$groupId": {
+        ".write": "auth != null",
+        "members": {
+          ".indexOn": ".key"
+        }
+      }
+    },
+    "comments": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": ["postId", "parentId"],
+      "$postId": {
+        ".indexOn": "createdAt"
+      }
+    },
+    "reactions": {
+      "$postId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    }
+  }
+}

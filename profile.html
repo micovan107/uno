@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ - Diễn Đàn GenZ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+    <header id="main-header">
+    <div class="header-container">
+        <a href="/" class="logo">vex</a>
+        <div class="search-bar">
+            <input type="search" placeholder="Tìm kiếm...">
+        </div>
+        <nav class="main-nav">
+            <a href="/create-post.html" class="nav-button">Đăng Bài</a>
+            <a href="/create-group.html" class="nav-button">Tạo Nhóm</a>
+            <div id="user-menu" class="user-menu">
+                <!-- User avatar and dropdown will be populated by auth.js -->
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container">
+        <div class="profile-header">
+            <img id="profile-avatar" src="https://via.placeholder.com/150" alt="Avatar" class="avatar">
+            <div class="profile-info">
+                <h2 id="profile-display-name"></h2>
+                <p id="profile-username"></p>
+                <div class="profile-stats">
+                    <span><strong id="post-count">0</strong> bài đăng</span>
+                    <span><strong id="follower-count">0</strong> người theo dõi</span>
+                    <span><strong id="following-count">0</strong> đang theo dõi</span>
+                </div>
+                <button id="follow-btn">Theo Dõi</button>
+            </div>
+        </div>
+
+        <section class="main-content">
+            <h3>Bài viết của <span id="username-posts"></span></h3>
+            <div id="user-posts">
+                <!-- Các bài đăng của người dùng sẽ được load ở đây -->
+            </div>
+        </section>
+    </main>
+    
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/profile.js"></script>
+
+</body>
+</html>

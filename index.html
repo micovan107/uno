@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Diễn Đàn GenZ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/splash.css">
+</head>
+<body>
+    <div id="splash-screen">
+        <div id="splash-logo">
+            <svg viewBox="0 0 200 50">
+                <!-- V -->
+                <path id="v-path" d="M10 0 L35 50 L60 0" />
+                <!-- E -->
+                <path id="e-path" d="M120 0 L80 0 L80 50 L120 50 M80 25 L120 25" />
+                <!-- X -->
+                <path id="x-path" d="M140 0 L190 50 M190 0 L140 50" />
+            </svg>
+        </div>
+    </div>
+    <header id="main-header">
+    <div class="header-container">
+        <a href="/" class="logo">vex</a>
+        <div class="search-bar">
+            <input type="search" placeholder="Tìm kiếm...">
+        </div>
+        <nav class="main-nav">
+            <a href="/create-post.html" class="nav-button">Đăng Bài</a>
+            <a href="/create-group.html" class="nav-button">Tạo Nhóm</a>
+            <div id="user-menu" class="user-menu">
+                <!-- User avatar and dropdown will be populated by auth.js -->
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container index-layout">
+        <aside class="left-sidebar">
+            <h2>Hội Nhóm Nổi Bật</h2>
+            <ul id="group-list">
+                <!-- Danh sách nhóm sẽ được load bằng JavaScript -->
+            </ul>
+        </aside>
+
+        <section class="main-content">
+            <h2>Bài Đăng Hot 🔥</h2>
+            <div id="hot-posts">
+                <!-- Các bài đăng sẽ được load bằng JavaScript -->
+            </div>
+        </section>
+
+        <aside class="right-sidebar">
+            <h2>Bảng Xếp Hạng "Nổi tiếng"</h2>
+            <ol id="fame-leaderboard">
+                <!-- Bảng xếp hạng sẽ được load bằng JavaScript -->
+            </ol>
+        </aside>
+    </main>
+
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/index.js"></script>
+    <script type="module" src="js/splash.js"></script>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 Vex. All rights reserved.</p>
+            <nav>
+                <a href="terms.html">Điều khoản sử dụng</a>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>

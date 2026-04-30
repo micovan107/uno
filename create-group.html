@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Nhóm Mới</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/create-group.css">
+</head>
+<body>
+    <header id="main-header">
+        <div class="header-container">
+            <a href="/" class="logo">vex</a>
+            <div class="search-bar">
+                <input type="search" placeholder="Tìm kiếm...">
+            </div>
+            <nav class="main-nav">
+                <a href="/create-post.html" class="nav-button">Đăng Bài</a>
+                <a href="/create-group.html" class="nav-button">Tạo Nhóm</a>
+                <div id="user-menu" class="user-menu">
+                    <!-- User avatar and dropdown will be populated by auth.js -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="form-container">
+        <h1>Tạo một cộng đồng mới</h1>
+        <form id="create-group-form">
+            <div class="form-group">
+                <label for="group-id">Tên nhóm (ID)</label>
+                <input type="text" id="group-id" name="group-id" pattern="^[a-z0-9-]+$" placeholder="ví dụ: ten-nhom-moi" required>
+                <small>Chỉ dùng chữ cái thường, số và dấu gạch ngang. Tên này sẽ xuất hiện trên URL.</small>
+            </div>
+            <div class="form-group">
+                <label for="group-display-name">Tên hiển thị của nhóm</label>
+                <input type="text" id="group-display-name" name="group-display-name" placeholder="Ví dụ: Nhóm Thích Trồng Cây" required>
+            </div>
+            <div class="form-group">
+                <label for="group-description">Mô tả</label>
+                <textarea id="group-description" name="group-description" rows="4" placeholder="Mô tả ngắn gọn về nhóm của bạn..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Quyền riêng tư</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="privacy" value="public" checked>
+                        <i class="fa-solid fa-earth-asia"></i> Công khai
+                        <small>Bất kỳ ai cũng có thể xem và tham gia nhóm này.</small>
+                    </label>
+                    <label>
+                        <input type="radio" name="privacy" value="private">
+                        <i class="fa-solid fa-lock"></i> Riêng tư
+                        <small>Chỉ thành viên mới có thể xem và đăng bài. Người khác cần được duyệt để tham gia.</small>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="group-avatar">Ảnh đại diện nhóm (tùy chọn):</label>
+                <input type="file" id="group-avatar" name="group-avatar" accept="image/*">
+                <div id="avatar-preview" class="image-preview"></div>
+            </div>
+            <button type="submit">Tạo Nhóm</button>
+        </form>
+    </main>
+
+    <script type="module" src="js/config-firebase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/create-group.js"></script>
+</body>
+</html>

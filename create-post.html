@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Bài Đăng Mới</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/create-post.css">
+    <!-- EasyMDE CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+</head>
+<body>
+    <header id="main-header">
+    <div class="header-container">
+        <a href="/" class="logo">vex</a>
+        <div class="search-bar">
+            <input type="search" placeholder="Tìm kiếm...">
+        </div>
+        <nav class="main-nav">
+            <a href="/create-post.html" class="nav-button">Đăng Bài</a>
+            <a href="/create-group.html" class="nav-button">Tạo Nhóm</a>
+            <div id="user-menu" class="user-menu">
+                <!-- User avatar and dropdown will be populated by auth.js -->
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <main class="container">
+        <div class="create-post-container">
+            <h2>Tạo "Muối" Mới</h2>
+            <form id="create-post-form">
+                <div class="form-group">
+                    <label for="post-title">Tiêu đề:</label>
+                    <input type="text" id="post-title" name="post-title" placeholder="Hôm nay có gì hot?" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-group">Chọn hội nhóm:</label>
+                    <select id="post-group" name="post-group" required>
+                        <option value="">-- Đang tải danh sách nhóm --</option>
+                        <!-- Danh sách nhóm sẽ được load bằng JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-tag">Chọn nhãn dán:</label>
+                    <select id="post-tag" name="post-tag" required>
+                        <option value="Khác">Khác</option>
+                        <option value="Trò chơi">Trò chơi</option>
+                        <option value="Giáo dục">Giáo dục</option>
+                        <option value="Kinh tế">Kinh tế</option>
+                        <option value="Chính trị">Chính trị</option>
+                        <option value="Tin tức">Tin tức</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-content">Nội dung:</label>
+                    <textarea id="post-content" name="post-content" rows="10" placeholder="Rắc muối ở đây nè..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="post-video-url">Link Video YouTube (tùy chọn):</label>
+                    <input type="url" id="post-video-url" name="post-video-url" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label for="post-image">Tải ảnh lên (tùy chọn):</label>
+                    <input type="file" id="post-image" name="post-image" accept="image/*">
+                    <div id="image-preview" class="image-preview"></div>
+                </div>
+                <button type="submit">Đăng Bài</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- EasyMDE JavaScript -->
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/create-post.js"></script>
+
+</body>
+</html>
