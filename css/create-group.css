@@ -1,0 +1,146 @@
+/* General body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Main container for the form */
+.form-container {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+/* Form title */
+h1 {
+    text-align: center;
+    color: #1877f2; /* A modern blue */
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+/* Styling for form groups */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Styling for labels */
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #606770;
+}
+
+/* General styling for input and textarea */
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+    outline: none;
+}
+
+/* Specific styling for the group ID input to guide the user */
+#group-id {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f5f6f7;
+}
+
+/* Styling for the submit button */
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #1877f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #166fe5;
+}
+
+button[type="submit"]:disabled {
+    background-color: #a0c3ff;
+    cursor: not-allowed;
+}
+
+/* --- Privacy Radio Buttons --- */
+.radio-group label {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid #ccd0d5;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.radio-group label:hover {
+    border-color: #8a8d91;
+}
+
+.radio-group input[type="radio"] {
+    margin-top: 3px;
+    margin-right: 12px;
+}
+
+.radio-group input[type="radio"]:checked + i + small {
+    /* We can style the text when checked, but we'll style the whole label */
+}
+
+.radio-group label.checked {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.radio-group i {
+    margin-right: 8px;
+    color: #606770;
+    font-size: 1.1rem;
+}
+
+.radio-group small {
+    display: block;
+    color: #65676b;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .form-container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+}

@@ -1,0 +1,872 @@
+/* Ghi đè style chung khi ở trang nhóm */
+body.group-page-active {
+    padding-top: 0;
+}
+
+/* --- CSS cho header nhóm --- */
+.group-header-banner {
+    background-color: #fff;
+    padding: 10px 15px; /* Giảm padding dọc */
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Giảm khoảng cách */
+    height: 75px; /* Đặt chiều cao cố định */
+}
+
+.group-avatar {
+    width: 60px; /* Giảm kích thước avatar */
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+}
+
+.group-info {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+.group-name-and-home {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.home-link-button {
+    /* Làm cho nút nhỏ hơn một chút để phù hợp */
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    /* Thêm một chút để nó không dính sát tên nhóm */
+    margin-bottom: 2px; 
+}
+
+
+.group-info-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.group-info h2 {
+    margin: 0;
+    font-size: 18px; /* Giảm kích thước font */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.group-info p {
+    margin: 0; /* Bỏ margin top */
+    color: #65676b;
+    font-size: 0.85rem; /* Giảm kích thước font */
+    white-space: nowrap; /* Ngăn không cho xuống dòng */
+    overflow: hidden; /* Ẩn phần thừa */
+    text-overflow: ellipsis; /* Hiển thị dấu '...' */
+}
+
+.group-actions {
+    display: flex;
+    gap: 8px; /* Giảm khoảng cách */
+}
+
+.action-button {
+    padding: 8px 12px; /* Giảm padding nút */
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    font-size: 0.9rem; /* Giảm kích thước font nút */
+}
+
+.action-button.primary {
+    background-color: #1877f2;
+    color: white;
+}
+
+.action-button.secondary {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+
+.private-message {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #65676b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+/* --- Hết CSS cho header nhóm --- */
+
+/* CSS cho thanh tìm kiếm */
+.group-actions-and-search {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto; /* Đẩy cả cụm về bên phải */
+}
+
+.group-search {
+    position: relative;
+}
+
+.group-search input[type="search"] {
+    background-color: #f0f2f5;
+    border: 1px solid #f0f2f5;
+    border-radius: 20px;
+    padding: 8px 15px 8px 35px; /* Thêm padding bên trái cho icon */
+    font-size: 0.9rem;
+    width: 220px; /* Độ rộng mặc định */
+    transition: width 0.3s ease-in-out;
+}
+
+.group-search::before {
+    content: '🔍'; /* Biểu tượng kính lúp */
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #65676b;
+    font-size: 0.9rem;
+}
+/* Main layout for group page */
+.group-main-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr 250px;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* Left sidebar for tags */
+.group-sidebar.left {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    height: fit-content;
+}
+
+.group-sidebar.left h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+#tag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#tag-list li {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+#tag-list li:hover {
+    background-color: #e4e6eb;
+}
+
+#tag-list li.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* Right sidebar for members */
+.group-sidebar.right {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    height: fit-content;
+}
+
+.group-sidebar.right h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+#member-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#member-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#member-list .member-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#member-list .member-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* --- Kiểu cho nhãn vai trò --- */
+.author-role-label, .member-role-label {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.15);
+    margin-left: 8px; /* Khoảng cách với tên tác giả */
+}
+
+.member-role-label {
+    margin-left: 0; /* Reset margin cho danh sách thành viên */
+    margin-top: 2px; /* Khoảng cách với tên thành viên */
+    align-self: flex-start; /* Căn lề trái */
+}
+/* Main layout for group page */
+
+/* Post items in the main column */
+#group-posts .post-item {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+}
+
+#group-posts .post-item h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+#group-posts .post-item h3 a {
+    color: #212529;
+    text-decoration: none;
+}
+#group-posts .post-item h3 a:hover {
+    color: #0056b3;
+}
+
+#group-posts .post-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 0 0 15px 0;
+}
+
+#group-posts .youtube-video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+    margin: 0 0 15px 0;
+    border-radius: 8px;
+}
+
+#group-posts .youtube-video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.post-header-info {
+    display: flex;
+    
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-header-info .post-author {
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+}
+.post-header-info .post-timestamp {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+}
+.post-header-info .post-tag {
+    margin-left: auto; /* Đẩy tag về cuối */
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 15px;
+    background-color: #e9ecef;
+}
+
+.post-content-body {
+    margin-bottom: 15px;
+}
+
+.post-footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng */
+    padding-top: 10px;
+    border-top: 1px solid #f0f2f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-stats span {
+    color: #65676b;
+    font-size: 0.9rem;
+    margin-right: 15px;
+}
+
+.post-actions .action-btn {
+    background-color: #f0f2f5;
+    color: #333;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.post-actions .action-btn:hover {
+    background-color: #e4e6eb;
+}
+
+
+
+/* Khu vực bình luận bên trong bài đăng */
+.comments-section {
+    padding: 15px;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #e9ecef;
+}
+
+.comment-form {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.comment-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.comment-form textarea {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    border-radius: 18px;
+    padding: 8px 12px;
+    min-height: 36px;
+    font-size: 0.95rem;
+    resize: vertical;
+}
+
+.comment-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: center;
+}
+
+.comment-list-container {
+    margin-top: 15px;
+}
+
+/* Style cho bình luận (tái sử dụng từ post.css và điều chỉnh) */
+.comment-thread {
+    margin-top: 10px;
+}
+.comment-item {
+    display: flex;
+    gap: 10px;
+}
+.comment-item .comment-avatar { /* More specific */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+.comment-content {
+    flex-grow: 1;
+    background-color: #f0f2f5;
+    border-radius: 15px;
+    padding: 8px 12px;
+}
+.comment-header .author-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #050505;
+    text-decoration: none;
+}
+.comment-body {
+    font-size: 0.95rem;
+}
+.comment-actions .timestamp {
+    font-size: 0.8rem;
+    color: #65676b;
+}
+.replies {
+    padding-left: 42px; /* Thụt vào so với avatar */
+    margin-top: 5px;
+}
+.group-header-content {
+    display: flex;
+    align-items: center; /* Để ảnh với chữ nó căn giữa theo chiều dọc, nhìn cho nó thuận mắt */
+    gap: 15px; /* Khoảng cách giữa ảnh, info và mống nút bấm */
+}
+
+/* Nếu ông muốn cái đám nút bấm nó trôi về cuối dòng bên phải */
+.group-actions {
+    margin-left: auto;
+}
+
+/* CSS cho nút chỉ chứa icon */
+.action-button.icon-button {
+    width: 36px; /* Đặt chiều rộng và cao bằng nhau */
+    height: 36px;
+    padding: 0; /* Bỏ padding để icon căn giữa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-button.icon-button svg {
+    /* Kích thước của icon bên trong nút */
+    width: 20px;
+    height: 20px;
+}
+
+/* --- Responsive cho trang nhóm --- */
+@media (max-width: 768px) {
+    .group-header-banner {
+        height: auto; /* Chiều cao tự động */
+        padding: 10px;
+    }
+
+    .group-header-content {
+        flex-direction: column; /* Xếp chồng các mục lên nhau */
+        align-items: flex-start; /* Căn lề trái */
+        width: 100%;
+        gap: 12px;
+    }
+
+    .group-info {
+        order: 1; /* Đưa info lên trước */
+        flex-direction: row; /* Tên và avatar trên cùng một hàng */
+        align-items: center;
+        gap: 12px;
+    }
+
+    .group-info-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .group-avatar {
+        width: 48px; /* Giảm kích thước avatar */
+        height: 48px;
+        order: 0; /* Giữ avatar ở đầu */
+    }
+
+    .group-info h2 {
+        font-size: 1.1rem; /* Tăng nhẹ font cho tên nhóm */
+    }
+
+    .group-actions-and-search {
+        order: 2; /* Đưa actions và search xuống dưới */
+        flex-direction: column; /* Xếp chồng lên nhau */
+        width: 100%;
+        gap: 10px;
+        margin-left: 0; /* Reset margin */
+    }
+
+    .group-search {
+        width: 100%;
+    }
+
+    .group-search input[type="search"] {
+        width: 100%; /* Input chiếm toàn bộ chiều rộng */
+    }
+
+    .group-actions {
+        width: 100%;
+        justify-content: space-between; /* Phân bổ các nút */
+    }
+
+    .action-button {
+        flex-grow: 1; /* Cho các nút co giãn đều */
+        font-size: 0.85rem;
+        padding: 8px 5px; /* Giảm padding ngang */
+    }
+
+    /* Ẩn mô tả nhóm và nút trang chủ để tiết kiệm không gian */
+    .group-info p,
+    .group-actions a[href="/"] {
+        display: none;
+    }
+
+    /* Layout chính */
+    .group-main-layout {
+        grid-template-columns: 1fr; /* Chỉ còn 1 cột */
+    }
+
+    .left-sidebar, .right-sidebar {
+        display: none; /* Ẩn sidebar trên mobile */
+    }
+}
+
+/* --- Bổ sung CSS cho Reaction & Comment (Tương tự index.css) --- */
+
+.post-footer {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f2f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-stats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: #65676b;
+}
+
+.post-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.post-actions .action-btn {
+    background-color: #f0f2f5;
+    color: #333;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.post-actions .action-btn:hover {
+    background-color: #e4e6eb;
+}
+.post-actions .action-btn.reacted {
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* --- Reaction --- */
+.reaction-container {
+    position: relative;
+}
+
+.reaction-popup {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 5px;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.reaction-container:hover .reaction-popup {
+    display: flex;
+    gap: 5px;
+}
+
+.reaction-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.reaction-icon:hover {
+    transform: scale(1.3);
+}
+
+.reaction-summary {
+    cursor: pointer;
+}
+
+/* --- Comments Section (Compact) --- */
+.comments-section {
+    padding: 10px 12px; /* Reduced padding */
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #e9ecef;
+    border-radius: 0 0 8px 8px; /* Bo tròn góc dưới */
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced gap */
+    margin-bottom: 15px; /* Reduced margin */
+}
+
+.comment-form textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 18px;
+    padding: 8px 12px; /* Reduced padding */
+    font-size: 0.9rem; /* Reduced font size */
+    resize: vertical;
+    background-color: #f0f2f5;
+    min-height: 38px; /* Reduced height */
+}
+.comment-form textarea:focus {
+    background-color: #fff;
+    outline: none;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.comment-form button {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 6px 12px; /* Reduced padding */
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.comment-form button.cancel-reply-btn {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+
+
+.comments-list-container {
+    margin-top: 15px;
+}
+
+.comment-thread {
+    margin-top: 8px; /* Reduced margin */
+}
+.comment-item {
+    display: flex;
+    gap: 8px; /* Reduced gap */
+}
+.comment-item .comment-avatar {
+    width: 28px; /* Reduced size */
+    height: 28px; /* Reduced size */
+    border-radius: 50%;
+}
+.comment-content {
+    flex-grow: 1;
+    background-color: #f0f2f5;
+    border-radius: 15px;
+    padding: 6px 10px; /* Reduced padding */
+}
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduced gap */
+}
+.comment-header .author-name {
+    font-weight: bold;
+    font-size: 0.85rem; /* Reduced font size */
+    color: #050505;
+    text-decoration: none;
+}
+.comment-header .timestamp {
+    font-size: 0.75rem; /* Reduced font size */
+    color: #65676b;
+}
+.comment-body-and-actions {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.comment-body {
+    font-size: 0.9rem; /* Reduced font size */
+    padding: 2px 0; /* Reduced padding */
+    flex-grow: 1;
+}
+.comment-actions {
+    margin-top: 0; /* Reset margin */
+    flex-shrink: 0; /* Prevent actions from shrinking */
+}
+.comment-actions .reply-btn {
+    font-size: 0.75rem; /* Reduced font size */
+    font-weight: bold;
+    color: #65676b;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px; /* Reduced padding */
+}
+.comment-actions .reply-btn:hover {
+    text-decoration: underline;
+}
+
+.replies {
+    padding-left: 36px; /* Adjusted for new avatar size + gap (28+8) */
+    margin-top: 5px;
+}
+.reply-form-container {
+    margin-top: 8px; /* Reduced margin */
+}
+
+.comment-form {
+    display: flex;
+    align-items: flex-start; /* Căn các item từ trên xuống */
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.comment-form .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-top: 5px; /* Căn chỉnh với textarea */
+}
+
+.comment-input-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-input-area textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    resize: vertical;
+    background-color: #f0f2f5;
+    min-height: 40px;
+    box-sizing: border-box; /* Quan trọng */
+}
+.comment-input-area textarea:focus {
+    background-color: #fff;
+    outline: none;
+    border-color: #007bff;
+}
+
+.comment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.comment-form-actions button {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.comment-form-actions button:hover {
+    background-color: #166fe5;
+}
+.comment-form-actions button:disabled {
+    background-color: #a0bdf5;
+    cursor: not-allowed;
+}
+
+.comment-form-actions button.cancel-reply-btn {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+.comment-form-actions button.cancel-reply-btn:hover {
+    background-color: #d8dadf;
+}
+
+.loading-text {
+    color: #65676b;
+    padding: 15px;
+    text-align: center;
+}
+
+/* --- CSS cho Form Bình luận Chính --- */
+.main-comment-form .comment-form {
+    display: flex;
+    flex-direction: row; /* Đảm bảo avatar và input trên cùng một hàng */
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+.main-comment-form .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-top: 5px; /* Căn chỉnh với textarea */
+}
+
+.main-comment-form .comment-input-area {
+    flex-grow: 1; /* Chiếm hết không gian còn lại */
+    display: flex;
+    flex-direction: column;
+}
+
+.main-comment-form .comment-input-area textarea {
+    width: 100%;
+    box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+}
