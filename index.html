@@ -72,9 +72,6 @@
       <nav class="history-tabs"><button>Chức năng</button><button class="active">Lịch sử GD</button><button>Thông tin</button></nav>
       <h2 class="recent-heading">Giao dịch gần đây</h2><div class="filters"><button class="active">⌄ 2 tuần</button><button>1 tháng</button><button><i data-lucide="funnel" width="12"></i> Tùy chỉnh</button></div>
       <div class="history-note"><i data-lucide="info" width="15"></i><div>Tải về lưu lịch sử giao dịch về thiết bị.<strong>Xuất file lịch sử giao dịch</strong></div></div>
-      <div class="date-label">27/08/2026</div><div class="transaction"><div class="transaction-info"><div class="transaction-title">CT DI:38DK2681920...</div><div class="transaction-time">11:34:58</div></div><div class="transaction-value expense">-400,000 VND<small>Số dư: 8,260,000 VND　›</small></div></div><div class="transaction"><div class="transaction-info"><div class="transaction-title">CT DI:38DK26819YF...</div><div class="transaction-time">09:42:20</div></div><div class="transaction-value expense">-220,000 VND<small>Số dư: 8,480,944 VND　›</small></div></div>
-      <div class="date-label">25/08/2026</div><div class="transaction"><div class="transaction-info"><div class="transaction-title">380D60825LM7Z429 ...</div><div class="transaction-time">17:08:29</div></div><div class="transaction-value expense">-350,000 VND<small>Số dư: 8,830,000 VND　›</small></div></div>
-      <div class="transaction"><div class="transaction-info"><div class="transaction-title">NAP TIEN DIEN THOAI</div><div class="transaction-time">08:15:42</div></div><div class="transaction-value income">+100,000 VND<small>Số dư: 9,180,000 VND　›</small></div></div>
       <div id="custom-transactions"></div>
     </section>
     <section class="manage-page" id="manage-page" hidden aria-label="Quản lý lịch sử giao dịch">
@@ -113,10 +110,39 @@
     const historyPage = document.querySelector('#history-page');
     const shell = document.querySelector('.ipay-shell'); const loginPage = document.querySelector('#login-page'); const managePage = document.querySelector('#manage-page'); const loadingLayer = document.querySelector('#loading-layer');
     const customTransactions = document.querySelector('#custom-transactions'); const manageList = document.querySelector('#manage-list'); const manageForm = document.querySelector('#manage-form');
+    const baseHistory = [
+      { id: 'base-1', type: 'outgoing', title: 'CT DI:38DK2681920...', amount: '400,000', balance: '8,260,000', dateInput: '2026-08-27T11:34:58' },
+      { id: 'base-2', type: 'outgoing', title: 'CT DI:38DK26819YF...', amount: '220,000', balance: '8,480,944', dateInput: '2026-08-27T09:42:20' },
+      { id: 'base-3', type: 'outgoing', title: '380D60825LM7Z429...', amount: '350,000', balance: '8,830,000', dateInput: '2026-08-25T17:08:29' },
+      { id: 'base-4', type: 'incoming', title: 'NAP TIEN DIEN THOAI', amount: '100,000', balance: '9,180,000', dateInput: '2026-08-25T08:15:42' },
+      { id: 'image-1', type: 'incoming', title: '3D806HG436D676', amount: '6,450,000', balance: '60,826,000', dateInput: '2026-07-30T14:24:00' },
+      { id: 'image-2', type: 'incoming', title: '3D806HG436D676', amount: '7,500,000', balance: '', dateInput: '2026-08-01T08:28:00' },
+      { id: 'image-3', type: 'outgoing', title: 'TTHD VNPT NDHAAO...', amount: '176,000', balance: '', dateInput: '2026-08-02T18:27:00' },
+      { id: 'image-4', type: 'outgoing', title: 'CHUYEN KHOAN QUA ZALO', amount: '350,000', balance: '', dateInput: '2026-08-02T08:25:00' },
+      { id: 'image-5', type: 'outgoing', title: 'CHUYEN KHOAN QUA ZALO', amount: '450,000', balance: '', dateInput: '2026-08-08T17:21:00' },
+      { id: 'image-6', type: 'outgoing', title: 'DANG KY GOI ON LUYEN V5', amount: '3,999,000', balance: '', dateInput: '2026-08-14T10:00:00' },
+      { id: 'image-7', type: 'outgoing', title: '3635D463SH453', amount: '350,000', balance: '', dateInput: '2026-08-19T16:19:00' },
+      { id: 'image-8', type: 'outgoing', title: '3635D536A5472', amount: '450,000', balance: '', dateInput: '2026-08-26T10:17:00' }
+    ];
     let customHistory = JSON.parse(localStorage.getItem('ipay-custom-history') || '[]');
     function showLoading(changePage) { loadingLayer.hidden = false; loadingLayer.classList.remove('fade-out'); setTimeout(() => { changePage(); loadingLayer.classList.add('fade-out'); setTimeout(() => { loadingLayer.hidden = true; }, 180); }, 420); }
     function openLogin() { showLoading(() => { shell.classList.remove('history-mode'); historyPage.hidden = true; shell.classList.add('login-mode'); loginPage.hidden = false; window.scrollTo(0, 0); }); }
     function renderCustomHistory() { const latestBalance = customHistory[0]?.balance; if (latestBalance) document.querySelector('.available-amount').textContent = `${latestBalance} VND`; customTransactions.innerHTML = customHistory.map(item => `<div class="date-label">${item.date}</div><div class="transaction"><div class="transaction-info"><div class="transaction-title">${item.title}</div><div class="transaction-time">${item.time}</div></div><div class="transaction-value ${item.type === 'incoming' ? 'income' : 'expense'}">${item.type === 'incoming' ? '+' : '-'}${item.amount} VND<small>Số dư: ${item.balance || 'Chưa cập nhật'}${item.balance ? ' VND' : ''}　›</small></div></div>`).join(''); manageList.innerHTML = customHistory.map(item => `<div class="manage-item"><div><strong>${item.title}</strong><small>${item.date} ${item.time} · ${item.type === 'incoming' ? 'Nhận vào' : 'Chuyển đi'} · Số dư ${item.balance || 'Chưa cập nhật'}</small></div><strong class="${item.type === 'incoming' ? 'income' : 'expense'}">${item.type === 'incoming' ? '+' : '-'}${item.amount}</strong><div class="manage-actions"><button class="manage-edit" type="button" data-edit-id="${item.id}" aria-label="Chỉnh sửa giao dịch"><i data-lucide="pencil" width="15"></i></button><button class="manage-delete" type="button" data-delete-id="${item.id}" aria-label="Xóa giao dịch"><i data-lucide="trash-2" width="15"></i></button></div></div>`).join(''); manageList.querySelectorAll('[data-edit-id]').forEach(button => button.addEventListener('click', () => { const item = customHistory.find(entry => entry.id === button.dataset.editId); if (!item) return; manageForm.dataset.editId = item.id; manageForm.elements.type.value = item.type; manageForm.elements.title.value = item.title; manageForm.elements.amount.value = item.amount.replace(/,/g, ''); manageForm.elements.balance.value = (item.balance || '').replace(/,/g, ''); manageForm.elements.date.value = item.dateInput || new Date().toISOString().slice(0, 16); manageForm.querySelector('.manage-submit').textContent = 'Lưu thay đổi'; manageForm.scrollIntoView({ behavior: 'smooth', block: 'start' }); })); manageList.querySelectorAll('[data-delete-id]').forEach(button => button.addEventListener('click', () => { customHistory = customHistory.filter(item => item.id !== button.dataset.deleteId); localStorage.setItem('ipay-custom-history', JSON.stringify(customHistory)); renderCustomHistory(); })); lucide.createIcons(); }
+    const originalRenderCustomHistory = renderCustomHistory;
+    renderCustomHistory = function () {
+      customHistory.sort((a, b) => new Date(b.dateInput) - new Date(a.dateInput));
+      originalRenderCustomHistory();
+      const allHistory = [...baseHistory, ...customHistory].sort((a, b) => new Date(b.dateInput) - new Date(a.dateInput));
+      let currentDate = '';
+      customTransactions.innerHTML = allHistory.map(item => {
+        const dateValue = new Date(item.dateInput);
+        const date = dateValue.toLocaleDateString('vi-VN');
+        const time = dateValue.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateHeading = date !== currentDate ? `<div class="date-label">${date}</div>` : '';
+        currentDate = date;
+        return `${dateHeading}<div class="transaction"><div class="transaction-info"><div class="transaction-title">${item.title}</div><div class="transaction-time">${time}</div></div><div class="transaction-value ${item.type === 'incoming' ? 'income' : 'expense'}">${item.type === 'incoming' ? '+' : '-'}${item.amount} VND<small>Số dư: ${item.balance || 'Chưa cập nhật'}${item.balance ? ' VND' : ''}　›</small></div></div>`;
+      }).join('');
+    };
     let avatarTaps = 0; let avatarTapTimer;
     document.querySelector('.avatar').addEventListener('click', () => { avatarTaps += 1; clearTimeout(avatarTapTimer); avatarTapTimer = setTimeout(() => avatarTaps = 0, 1200); if (avatarTaps === 5) { avatarTaps = 0; renderCustomHistory(); showLoading(() => { shell.classList.remove('history-mode', 'login-mode'); historyPage.hidden = true; loginPage.hidden = true; shell.classList.add('manage-mode'); managePage.hidden = false; window.scrollTo(0, 0); }); } });
     document.querySelector('#back-manage').addEventListener('click', () => { showLoading(() => { managePage.hidden = true; shell.classList.remove('manage-mode'); }); });
