@@ -1,0 +1,26 @@
+{
+  "name": "VietinBank iPay Mobile",
+  "short_name": "iPay Mobile",
+  "description": "VietinBank iPay Mobile",
+  "lang": "vi",
+  "start_url": "/ipay.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6fafe",
+  "theme_color": "#f6fafe",
+  "icons": [
+    {
+      "src": "public/icon-dark-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "public/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
