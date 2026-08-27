@@ -1,76 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - Diễn Đàn GenZ</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="stylesheet" href="css/splash.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VietinBank iPay Mobile</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root { --background:#f6fafe; --foreground:#101d31; --border:#dce8f0; --blue:#006d9f; --deep:#064d72; --pink:#e51d62; --gold:#d4a84c; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-width:320px; background:var(--background); color:var(--foreground); font-family:"Trebuchet MS",Arial,sans-serif; }
+    button { font:inherit; cursor:pointer; }
+    button:focus-visible { outline:3px solid #f2b42e; outline-offset:3px; }
+    .ipay-shell { position:relative; overflow-x:hidden; min-height:100vh; width:100%; background:linear-gradient(145deg,#e7f6fd 0%,#f9fbfd 43%,#f4f8fb 100%); padding:24px max(20px,calc((100vw - 920px)/2)) 110px; }
+    .ambient { position:absolute; border-radius:50%; pointer-events:none; opacity:.55; filter:blur(1px); }
+    .ambient-one { width:390px;height:390px;right:-160px;top:130px;background:radial-gradient(circle,#d5eefa 0 18%,transparent 60%); }
+    .ambient-two { width:280px;height:280px;left:-120px;bottom:30px;background:#e4f7fd; }
+    .topbar,.welcome-row,.quick-links,.section-heading { position:relative; display:flex; align-items:center; justify-content:space-between; z-index:1; }
+    .brand { display:flex; align-items:center; gap:8px; color:var(--deep); }
+    .brand-mark { display:block; width:28px;height:28px;border-radius:50% 50% 50% 8px;object-fit:cover; }
+    .brand strong,.brand span:last-child { display:block; line-height:1.05; }.brand strong { font-size:18px; }.brand span:last-child { font-size:15px;font-weight:700; }
+    .status { position:absolute;left:50%;transform:translateX(-50%);top:-4px;font-size:13px;font-weight:800;display:flex;gap:8px;align-items:center; }.status small { font-size:8px; }
+    .header-actions { display:flex;gap:12px; }.round-action { position:relative;border:0;background:#fff;color:var(--deep);border-radius:50%;width:52px;height:52px;display:grid;place-items:center;box-shadow:0 7px 19px #8db4c633; }.round-action b { position:absolute;right:-3px;top:-2px;background:#d91d5b;color:white;border-radius:20px;padding:2px 5px;font-size:11px; }.crown { font-size:27px;color:var(--gold); }
+    .welcome-row { justify-content:flex-start;gap:12px;margin:38px 0 26px; }.avatar { width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#eaa3cd,#48bde7);padding:5px; }.avatar span { display:block;height:100%;border-radius:50%;overflow:hidden;background:linear-gradient(#f9fafc 0 40%,#dfe9ef 41%); }.avatar img { display:block;width:100%;height:100%;object-fit:cover; }.welcome-copy p { margin:0 0 6px;font-size:18px;font-weight:800;letter-spacing:-.3px; }.welcome-copy button { display:flex;align-items:center;gap:10px;border:0;border-radius:24px;background:#087db1;color:#fff;padding:8px 16px;font-size:16px;font-weight:700; }
+    .balance-card { position:relative; min-height:154px;background:#fff;border:1px solid #e3e9ed;border-radius:22px;padding:19px 20px;overflow:hidden;box-shadow:0 12px 30px #7ba9bf1a;max-width:620px; }.account-number { margin:0 0 8px;font-size:15px; }.balance-value { font-size:20px;font-weight:800;display:flex;align-items:center;gap:5px; }.balance-value span { font-size:16px; }.balance-value button { border:0;background:transparent;color:var(--blue);display:grid;place-items:center; }.balance-next { position:absolute;right:16px;top:17px;border:0;width:50px;height:50px;border-radius:50%;background:#edf7fc;color:#657c8e; }.card-chip { position:absolute;right:-1px;bottom:-4px;width:86px;height:88px;border-radius:22px 0 0 0;background:#155a78;color:#fff;padding:15px 22px;display:flex;align-items:center;flex-direction:column;gap:8px; }.card-chip span { font-size:25px;color:#d7e1e4; }.card-chip i { position:absolute;right:8px;bottom:22px;font-style:normal; }
+    .quick-links { gap:10px;justify-content:stretch;overflow:visible;margin:18px 0 28px;padding:0; }.quick-links button { flex:1;min-width:0;white-space:normal;border:1px solid #b6dfef;background:#fff;border-radius:28px;color:var(--deep);padding:12px 14px;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:700;font-size:15px; }
+    .content-section { position:relative;z-index:1; }.section-heading { margin-bottom:16px; }.section-heading h1 { margin:0;font-size:22px;letter-spacing:-.5px; }.section-heading button { border:0;background:transparent;color:var(--blue);font-weight:800; }
+    .service-grid { background:#fff;border:1px solid #dde5eb;border-radius:22px;display:grid;grid-template-columns:repeat(3,1fr);padding:22px 12px 24px;box-shadow:0 15px 30px #79a8bd12; }.service-item { position:relative;border:0;background:transparent;color:var(--foreground);min-height:112px;display:flex;align-items:center;flex-direction:column;gap:9px;text-align:center;font-size:15px;font-weight:700;line-height:1.45;transition:transform .2s; }.service-item:hover { transform:translateY(-3px); }.service-icon { width:38px;height:38px;display:grid;place-items:center;color:var(--blue); }.service-icon.pink { color:#b51f5e; }.service-icon.gold { color:#b88117; }.service-icon.red { color:#8a3254; }.badge { position:absolute;top:-7px;right:13%;font-size:11px;font-style:normal;font-weight:600;color:var(--blue);border:1px solid #d7a2be;border-radius:12px;padding:2px 7px;background:#fff; }.badge.hot { background:#e33a6a;color:white;border:0; }
+    .bottom-nav { position:fixed;z-index:5;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:24px;align-items:center;background:#fff;border:1px solid #dfe5e8;border-radius:40px;padding:9px 22px;box-shadow:0 8px 18px #4561722b; }.bottom-nav button { border:0;background:transparent;color:#8295a2;display:flex;align-items:center;gap:5px; }.bottom-nav button.active { color:var(--blue); }.bottom-nav span { font-size:11px;font-weight:700; }.toast { position:fixed;z-index:10;bottom:92px;left:50%;transform:translateX(-50%);background:#123c56;color:#fff;border-radius:18px;padding:11px 14px;display:flex;align-items:center;gap:7px;box-shadow:0 8px 20px #123c5638;font-size:13px;white-space:nowrap; }.toast button { background:transparent;border:0;color:#fff;display:grid;place-items:center; }
+    .history-page { position:relative; z-index:2; max-width:430px; margin:0 auto; }.history-page[hidden] { display:none; }.history-header { display:flex; align-items:center; gap:18px; margin-bottom:20px; }.history-header button { border:0; background:transparent; color:var(--foreground); padding:4px; }.history-header h1 { margin:0; font-size:18px; }.payment-card { position:relative; min-height:145px; padding:18px 14px; border-radius:14px; overflow:hidden; color:#fff; background:linear-gradient(135deg,#006fa7,#00547f); box-shadow:0 9px 20px #4c9abd38; }.payment-card:after { content:""; position:absolute; right:-38px; bottom:-56px; width:180px; height:140px; border-radius:50%; background:#0c85b45c; }.payment-card-top,.payment-card-bottom { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; }.payment-card-top { font-size:12px; font-weight:800; }.payment-card-bottom { margin-top:12px; font-size:10px; }.card-number { font-size:11px; }.payment-card button { border:0; background:transparent; color:#fff; padding:0; }.available { padding:15px 0 8px; }.available-label { display:flex; align-items:center; gap:5px; color:#72828e; font-size:11px; }.available-label button { border:0; background:transparent; color:var(--blue); padding:0; }.available-amount { margin:7px 0 2px; color:#00679b; font-size:18px; font-weight:800; }.available small { color:#7b8790; font-size:9px; }.history-tabs { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid #dce5ea; }.history-tabs button { border:0; border-bottom:2px solid transparent; background:transparent; color:#34404a; padding:11px 2px; font-size:10px; }.history-tabs button.active { border-color:#d5235d; color:#172a38; }.recent-heading { margin:17px 0 9px; font-size:12px; }.filters { display:flex; gap:6px; margin-bottom:12px; }.filters button { display:flex; align-items:center; gap:5px; border:1px solid #bfd2db; border-radius:18px; background:#fff; color:#243744; padding:6px 10px; font-size:10px; }.filters button.active { border-color:#087db1; color:#087db1; }.history-note { display:flex; align-items:center; gap:7px; margin-bottom:10px; padding:10px; border:1px solid #bde1f1; border-radius:11px; background:#effaff; color:#526975; font-size:9px; }.history-note strong { display:block; margin-top:4px; color:#087db1; font-weight:600; }.date-label { margin:10px 0 6px; color:#5b6d78; font-size:10px; }.transaction { display:flex; justify-content:space-between; gap:8px; padding:10px; border:1px solid #e5ebef; border-radius:12px; background:#fff; box-shadow:0 4px 10px #8aa5b31a; }.transaction + .transaction { margin-top:5px; }.transaction-info { min-width:0; }.transaction-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#34434d; font-size:10px; }.transaction-time { margin-top:5px; color:#89959b; font-size:8px; }.transaction-value { flex-shrink:0; text-align:right; font-size:10px; font-weight:800; }.transaction-value.expense { color:#d5235d; }.transaction-value.income { color:#00844b; }.transaction-value small { display:block; margin-top:4px; color:#75828a; font-size:8px; font-weight:400; }
+    @media (min-width:760px) { .ipay-shell { max-width:960px;margin:auto;padding-top:28px; }.balance-card { margin-top:6px; }.service-grid { grid-template-columns:repeat(5,1fr); }.service-item { min-height:125px; }.bottom-nav { left:auto;right:32px;transform:none; } }
+    @media (max-width:520px) { .status { display:none; }.header-actions { gap:7px; }.round-action { width:44px;height:44px; }.brand strong { font-size:16px; }.brand span:last-child { font-size:13px; }.ipay-shell { padding:18px 20px 110px; }.welcome-row { margin-top:32px; }.quick-links { flex-direction:column;gap:8px;margin-left:0;margin-right:0;padding:0; }.quick-links button { width:100%;justify-content:flex-start;padding:11px 14px;font-size:14px; }.section-heading h1 { font-size:17px;white-space:nowrap; }.section-heading button { flex-shrink:0;font-size:12px;padding:0; }.service-grid { padding-left:6px;padding-right:6px; }.service-item { font-size:14px; }.bottom-nav { width:calc(100% - 38px);justify-content:space-around;gap:3px;padding:9px 10px; }.bottom-nav span { display:none; } }
+    .ipay-shell.history-mode > :not(.history-page):not(.toast),.ipay-shell.login-mode > :not(.login-page):not(.toast) { display:none; }
+    .login-page { position:relative; z-index:2; min-height:calc(100vh - 134px); max-width:430px; margin:0 auto; padding-top:18px; }.login-page[hidden] { display:none; }.login-header { display:flex; align-items:center; gap:18px; margin-bottom:42px; }.login-header button { border:0; background:transparent; color:var(--foreground); padding:4px; }.login-header h1 { margin:0; font-size:19px; }.login-brand { margin-bottom:34px; text-align:center; color:var(--deep); }.login-brand .brand-mark { width:42px; height:42px; margin:0 auto 10px; font-size:20px; }.login-brand strong { display:block; font-size:20px; }.login-brand span { font-size:13px; font-weight:700; }.login-form { display:grid; gap:14px; }.login-field { display:flex; align-items:center; gap:10px; min-height:48px; padding:0 14px; border-bottom:1px solid #b9d0dc; color:#6d8290; }.login-field:focus-within { border-color:var(--blue); color:var(--blue); }.login-field input { width:100%; border:0; outline:0; background:transparent; color:var(--foreground); font:inherit; font-size:14px; }.login-field input::placeholder { color:#81939d; }.login-options { display:flex; justify-content:space-between; gap:10px; margin-top:-4px; color:var(--blue); font-size:11px; }.login-options button { border:0; background:transparent; color:inherit; padding:0; }.login-submit { min-height:45px; margin-top:20px; border:0; border-radius:7px; background:#eef7fb; color:var(--deep); font-size:14px; font-weight:800; box-shadow:0 4px 10px #79a8bd26; }.login-help { min-height:43px; border:0; border-radius:7px; background:#15517c; color:#fff; font-size:12px; }.loading-layer { position:fixed; inset:0; z-index:20; display:grid; place-items:center; background:#071827aa; opacity:1; transition:opacity .18s ease; }.loading-layer[hidden] { display:none; }.loading-layer.fade-out { opacity:0; }.loading-spinner { width:34px; height:34px; border:3px solid #ffffff55; border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }@keyframes spin { to { transform:rotate(360deg); } }
+  </style>
 </head>
 <body>
-    <div id="splash-screen">
-        <div id="splash-logo">
-            <svg viewBox="0 0 200 50">
-                <!-- V -->
-                <path id="v-path" d="M10 0 L35 50 L60 0" />
-                <!-- E -->
-                <path id="e-path" d="M120 0 L80 0 L80 50 L120 50 M80 25 L120 25" />
-                <!-- X -->
-                <path id="x-path" d="M140 0 L190 50 M190 0 L140 50" />
-            </svg>
-        </div>
-    </div>
-    <header id="main-header">
-    <div class="header-container">
-        <a href="/" class="logo">vex</a>
-        <div class="search-bar">
-            <input type="search" placeholder="Tìm kiếm...">
-        </div>
-        <nav class="main-nav">
-            <a href="/create-post.html" class="nav-button">Đăng Bài</a>
-            <a href="/create-group.html" class="nav-button">Tạo Nhóm</a>
-            <div id="user-menu" class="user-menu">
-                <!-- User avatar and dropdown will be populated by auth.js -->
-            </div>
-        </nav>
-    </div>
-</header>
-
-    <main class="container index-layout">
-        <aside class="left-sidebar">
-            <h2>Hội Nhóm Nổi Bật</h2>
-            <ul id="group-list">
-                <!-- Danh sách nhóm sẽ được load bằng JavaScript -->
-            </ul>
-        </aside>
-
-        <section class="main-content">
-            <h2>Bài Đăng Hot 🔥</h2>
-            <div id="hot-posts">
-                <!-- Các bài đăng sẽ được load bằng JavaScript -->
-            </div>
-        </section>
-
-        <aside class="right-sidebar">
-            <h2>Bảng Xếp Hạng "Nổi tiếng"</h2>
-            <ol id="fame-leaderboard">
-                <!-- Bảng xếp hạng sẽ được load bằng JavaScript -->
-            </ol>
-        </aside>
-    </main>
-
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/index.js"></script>
-    <script type="module" src="js/splash.js"></script>
-
-    <footer class="main-footer">
-        <div class="container">
-            <p>&copy; 2026 Vex. All rights reserved.</p>
-            <nav>
-                <a href="terms.html">Điều khoản sử dụng</a>
-            </nav>
-        </div>
-    </footer>
+  <main class="ipay-shell">
+    <div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand"><img class="brand-mark" src="https://ipay.vietinbank.vn/favicon-32x32.png" alt="VietinBank"><div><strong>VietinBank</strong><span>iPay Mobile</span></div></div>
+      <div class="status">12:08 <span>⌁</span> <small>129 KB/S</small> <i data-lucide="wifi" width="16"></i> <span>▮▮▮</span> <span>▮ 71%</span></div>
+      <nav class="header-actions" aria-label="Tiện ích"><button class="round-action crown" aria-label="Ưu đãi" data-message="Bạn có 3 ưu đãi mới">♛</button><button class="round-action" aria-label="Thông báo" data-message="Không có thông báo mới"><i data-lucide="bell" width="23"></i><b>9+</b></button><button class="round-action" aria-label="Cài đặt" data-message="Mở cài đặt tài khoản"><i data-lucide="settings" width="24"></i></button></nav>
+    </header>
+    <section class="welcome-row"><div class="avatar"><span><img src="avatar.png"></span></div><div class="welcome-copy"><p>NGUYEN TIEN NAM</p><button id="login-button">Đăng nhập <i data-lucide="arrow-right" width="18"></i></button></div></section>
+    <section class="balance-card" aria-label="Số dư tài khoản"><div><p class="account-number">**** **** 6206</p><div class="balance-value"><strong id="balance">*** *** ***</strong> <span>VND</span><button id="balance-button" aria-label="Hiện số dư"><i data-lucide="eye" width="21"></i></button></div></div><button class="balance-next" aria-label="Xem tài khoản" data-message="Đang mở chi tiết tài khoản"><i data-lucide="arrow-right" width="25"></i></button><div class="card-chip"><i data-lucide="wifi" width="18"></i><span>▣</span><i>›</i></div></section>
+    <div class="quick-links"><button data-message="Danh mục tài chính"><i data-lucide="landmark" width="21"></i>Danh mục tài chính</button><button data-message="Lịch sử giao dịch"><i data-lucide="history" width="21"></i>Lịch sử giao dịch<i data-lucide="chevron-right" width="17"></i></button></div>
+    <section class="content-section"><div class="section-heading"><h1>Chức năng yêu thích</h1><button data-message="Bạn có thể sắp xếp chức năng">Tùy chỉnh</button></div><div class="service-grid" id="services"></div></section>
+    <nav class="bottom-nav" aria-label="Điều hướng chính"><button class="active" data-tab="Tổng quan"><i data-lucide="wallet-cards" width="23"></i><span>Tổng quan</span></button><button data-tab="Hỗ trợ"><i data-lucide="headphones" width="23"></i><span>Hỗ trợ</span></button><button data-tab="Quét mã"><i data-lucide="qr-code" width="23"></i><span>Quét mã</span></button><button data-tab="Tra cứu"><i data-lucide="search" width="23"></i><span>Tra cứu</span></button></nav>
+    <div class="toast" id="toast" role="status" hidden><i data-lucide="shield-check" width="17"></i><span id="toast-text"></span><button id="close-toast" aria-label="Đóng">×</button></div>
+    <section class="history-page" id="history-page" hidden aria-label="Lịch sử giao dịch">
+      <header class="history-header"><button id="back-home" aria-label="Quay lại"><i data-lucide="arrow-left" width="21"></i></button><h1>Tài khoản thanh toán</h1></header>
+      <section class="payment-card"><div class="payment-card-top"><span>108855666206 | 0916512162</span><span><i data-lucide="copy" width="15"></i> <button aria-label="Chọn tài khoản">⌄</button></span></div><div class="payment-card-bottom"><strong>NGUYEN TIEN NAM</strong><span></span></div></section>
+      <section class="available"><div class="available-label">Số dư khả dụng <button aria-label="Ẩn số dư"><i data-lucide="eye-off" width="13"></i></button><button> Mặc định</button></div><div class="available-amount">8,260,000 VND</div><small>Số dư tài khoản: 7,542,944 VND</small></section>
+      <nav class="history-tabs"><button>Chức năng</button><button class="active">Lịch sử GD</button><button>Thông tin</button></nav>
+      <h2 class="recent-heading">Giao dịch gần đây</h2><div class="filters"><button class="active">⌄ 2 tuần</button><button>1 tháng</button><button><i data-lucide="funnel" width="12"></i> Tùy chỉnh</button></div>
+      <div class="history-note"><i data-lucide="info" width="15"></i><div>Tải về lưu lịch sử giao dịch về thiết bị.<strong>Xuất file lịch sử giao dịch</strong></div></div>
+      <div class="date-label">27/08/2026</div><div class="transaction"><div class="transaction-info"><div class="transaction-title">CT DI:38DK2681920...</div><div class="transaction-time">11:34:58</div></div><div class="transaction-value expense">-400,000 VND<small>Số dư: 8,260,000 VND　›</small></div></div><div class="transaction"><div class="transaction-info"><div class="transaction-title">CT DI:38DK26819YF...</div><div class="transaction-time">09:42:20</div></div><div class="transaction-value expense">-220,000 VND<small>Số dư: 7,942,944 VND　›</small></div></div>
+      <div class="date-label">25/08/2026</div><div class="transaction"><div class="transaction-info"><div class="transaction-title">380D60825LM7Z429 ...</div><div class="transaction-time">17:08:29</div></div><div class="transaction-value expense">-350,000 VND<small>Số dư: 8,660,000 VND　›</small></div></div>
+    </section>
+    <section class="login-page" id="login-page" hidden aria-label="Đăng nhập iPay">
+      <header class="login-header"><button id="back-login" aria-label="Quay lại"><i data-lucide="arrow-left" width="21"></i></button><h1>Đăng nhập vào iPay</h1></header>
+      <div class="login-brand"><img class="brand-mark" src="https://ipay.vietinbank.vn/favicon-32x32.png" alt="VietinBank"><strong>VietinBank</strong><span>iPay Mobile</span></div>
+      <form class="login-form" id="login-form">
+        <label class="login-field"><i data-lucide="user-round" width="18"></i><input type="text" placeholder="Tên đăng nhập" autocomplete="username" required></label>
+        <label class="login-field"><i data-lucide="lock-keyhole" width="18"></i><input type="password" placeholder="Mật khẩu" autocomplete="current-password" required></label>
+        <div class="login-options"><button type="button">Quên tên đăng nhập?</button><button type="button">Quên mật khẩu?</button></div>
+        <button class="login-submit" type="submit">Đăng nhập</button>
+        <button class="login-help" type="button">Chưa có tên đăng nhập/mật khẩu</button>
+      </form>
+    </section>
+    <div class="loading-layer" id="loading-layer" hidden aria-label="Đang tải"><div class="loading-spinner"></div></div>
+  </main>
+  <script>
+    const services = [['Chuyển tiền<br>trong nước','arrow-right','blue'],['Nạp tiền điện<br>thoại','smartphone','pink'],['Dịch vụ tiết<br>kiệm','wallet-cards','gold'],['Hóa đơn tiền<br>điện','search','red'],['Hóa đơn tiền<br>nước','sparkles','blue'],['Hóa đơn<br>truyền hình ...','more-horizontal','blue','Gợi ý'],['HomeLife','landmark','pink','Hot'],['Thanh toán<br>hóa đơn','scan-line','blue'],['Thanh toán<br>học phí','graduation-cap','pink']];
+    const serviceGrid = document.querySelector('#services');
+    serviceGrid.innerHTML = services.map(([label, icon, tone, badge]) => `<button class="service-item" data-message="${label.replace(/<br>/g, ' ')}">${badge ? `<em class="badge ${badge === 'Hot' ? 'hot' : ''}">${badge}</em>` : ''}<span class="service-icon ${tone}"><i data-lucide="${icon}" width="28"></i></span><span>${label}</span></button>`).join('');
+    const toast = document.querySelector('#toast'); const toastText = document.querySelector('#toast-text'); let timer;
+    function notify(message) { toastText.textContent = message; toast.hidden = false; clearTimeout(timer); timer = setTimeout(() => toast.hidden = true, 2200); }
+    document.querySelectorAll('[data-message]').forEach(button => button.addEventListener('click', () => notify(button.dataset.message)));
+    const homeContent = document.querySelectorAll('main > :not(.history-page):not(.toast)');
+    const historyPage = document.querySelector('#history-page');
+    const shell = document.querySelector('.ipay-shell'); const loginPage = document.querySelector('#login-page'); const loadingLayer = document.querySelector('#loading-layer');
+    function showLoading(changePage) { loadingLayer.hidden = false; loadingLayer.classList.remove('fade-out'); setTimeout(() => { changePage(); loadingLayer.classList.add('fade-out'); setTimeout(() => { loadingLayer.hidden = true; }, 180); }, 420); }
+    document.querySelector('[data-message="Lịch sử giao dịch"]').addEventListener('click', event => { event.stopImmediatePropagation(); showLoading(() => { shell.classList.add('history-mode'); historyPage.hidden = false; window.scrollTo(0, 0); }); });
+    document.querySelector('#back-home').addEventListener('click', () => { showLoading(() => { historyPage.hidden = true; shell.classList.remove('history-mode'); }); });
+    document.querySelector('#login-button').addEventListener('click', event => { event.stopImmediatePropagation(); showLoading(() => { shell.classList.add('login-mode'); loginPage.hidden = false; window.scrollTo(0, 0); }); });
+    document.querySelector('#back-login').addEventListener('click', () => { showLoading(() => { loginPage.hidden = true; shell.classList.remove('login-mode'); }); });
+    document.querySelector('#login-form').addEventListener('submit', event => { event.preventDefault(); showLoading(() => { loginPage.hidden = true; shell.classList.remove('login-mode'); loggedIn = true; document.querySelector('#login-button').innerHTML = 'Đã đăng nhập <i data-lucide="arrow-right" width="18"></i>'; lucide.createIcons(); notify('Đăng nhập thành công'); }); });
+    document.querySelector('#close-toast').addEventListener('click', () => toast.hidden = true);
+    let loggedIn = false;
+    let showBalance = false; document.querySelector('#balance-button').addEventListener('click', () => { showBalance = !showBalance; document.querySelector('#balance').textContent = showBalance ? '8,260,000' : '*** *** ***'; });
+    document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => { showLoading(() => { document.querySelectorAll('[data-tab]').forEach(item => item.classList.remove('active')); button.classList.add('active'); notify(button.dataset.tab); }); }));
+    lucide.createIcons();
+  </script>
 </body>
 </html>
